@@ -20,4 +20,6 @@ public interface MemberRepository extends MongoRepository<Member, Long> {
      * @return 해당하는 Member 객체
      */
     Member findByEmail(String email);
+
+    Member findByUsername(String username);
 }
