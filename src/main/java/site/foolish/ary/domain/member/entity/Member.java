@@ -12,8 +12,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 public class Member {
 
-    @Id
-    private String username;
+//    @Id
+//    private String username;
 
     private String email;
     private String password;

@@ -21,5 +21,5 @@ public interface MemberRepository extends MongoRepository<Member, Long> {
      */
     Member findByEmail(String email);
 
-    Member findByUsername(String username);
+//    Member findByUsername(String username);
 }
