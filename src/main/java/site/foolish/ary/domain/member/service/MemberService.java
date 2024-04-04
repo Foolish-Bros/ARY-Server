@@ -34,7 +34,8 @@ public class MemberService {
         Member findMember = memberRepository.findByEmail(loginRequest.getEmail());
 
         if(findMember == null) return null;
-        if(!findMember.getPassword().equals(loginRequest.getPassword())) return null;
+        if(!bCryptPasswordEncoder.matches(loginRequest.getPassword(), findMember.getPassword())) return null;
+//        if(!findMember.getPassword().equals(loginRequest.getPassword())) return null;
 
         return findMember;
     }

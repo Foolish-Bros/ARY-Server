@@ -14,6 +14,7 @@ import site.foolish.ary.domain.member.dto.JoinRequest;
 import site.foolish.ary.domain.member.dto.LoginRequest;
 import site.foolish.ary.domain.member.entity.Member;
 import site.foolish.ary.domain.member.service.MemberService;
+import site.foolish.ary.domain.member.util.JWTUtil;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -25,6 +26,7 @@ import java.util.Iterator;
 public class MemberController {
 
     private final MemberService memberService;
+    private final JWTUtil jwtUtil;
 
     @GetMapping("")
     public String home(Model model) {
@@ -43,7 +45,9 @@ public class MemberController {
 
         Member loginMember = memberService.getLoginMemberByEmail(email);
 
-        if(loginMember != null) {
+        log.info(email);
+
+        if(loginMember.getEmail() != null) {
             model.addAttribute("name", loginMember.getName());
         }
 
@@ -66,14 +70,18 @@ public class MemberController {
     public String join(@RequestBody JoinRequest joinRequest,
                        BindingResult bindingResult, Model model) {
 
-        log.info(joinRequest.getEmail());
-        log.info(joinRequest.getPassword());
-        log.info(joinRequest.getPasswordCheck());
-        log.info(joinRequest.getName());
-
-
         model.addAttribute("loginType", "security-login");
         model.addAttribute("pageName", "ARY Member Login");
+
+        // ID 중복 여부 확인
+        if(memberService.checkEmailDuplicated((joinRequest.getEmail()))) {
+            return "email 이 존재합니다.";
+        }
+
+        // 비밀번호 = 비밀번호 체크 여부 확인
+        if(!joinRequest.getPassword().equals(joinRequest.getPasswordCheck())) {
+            return "비밀번호가 일치하지 않습니다.";
+        }
 
         // 비밀번호 암호화 추가한 회원가입 로직으로 회원가입
         memberService.securityJoin(joinRequest);
@@ -83,18 +91,19 @@ public class MemberController {
     }
 
     @GetMapping("/login")
-    public String loginPage(@RequestBody LoginRequest loginRequest, Model model) {
+    public String loginPage(@RequestBody LoginRequest loginRequest) {
 
-        model.addAttribute("loginType", "security-login");
-        model.addAttribute("pageName", "ARY Member Login");
+        Member member = memberService.login(loginRequest);
 
-        model.addAttribute("loginRequest", loginRequest);
+        if(member == null) {
+            return "ID 또는 비밀번호가 일치하지 않습니다";
+        }
 
-        return "login";
+        return jwtUtil.createJwt(member.getEmail(), member.getRole().name(), 60 * 60 * 1000L);
     }
 
     @GetMapping("/info")
-    public String memberInfo(Authentication auth, Model model) {
+    public Member memberInfo(Authentication auth, Model model) {
 
 
         model.addAttribute("loginType", "security-login");
@@ -103,7 +112,7 @@ public class MemberController {
         Member loginMember = memberService.getLoginMemberByEmail(auth.getName());
 
         model.addAttribute("member", loginMember);
-        return "info";
+        return loginMember;
     }
 
     @GetMapping("/admin")
