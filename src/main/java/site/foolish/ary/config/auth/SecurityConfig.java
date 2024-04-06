@@ -47,6 +47,23 @@ public class SecurityConfig {
                         .anyRequest().permitAll()
                 );
 
+        // 폼 로그인 방식 설정
+        http
+                .formLogin((auth) -> auth.loginPage("/member/login")
+                        .loginProcessingUrl("/member/loginProc")
+                        .usernameParameter("email")
+                        .passwordParameter("password")
+                        .defaultSuccessUrl("/member")
+                        .failureUrl("/member")
+                        .permitAll());
+
+        // OAuth 2.0 로그인 방식 설정
+        http
+                .oauth2Login((auth) -> auth.loginPage("/member/login")
+                        .defaultSuccessUrl("/member")
+                        .failureUrl("/member/login")
+                        .permitAll());
+
         // session 설정
         http
                 .sessionManagement((session) -> session
