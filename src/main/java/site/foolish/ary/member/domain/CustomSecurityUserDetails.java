@@ -1,4 +1,4 @@
-package site.foolish.ary.domain.member.entity;
+package site.foolish.ary.member.domain;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -6,10 +6,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class CustomUserDetails implements UserDetails {
+public class CustomSecurityUserDetails implements UserDetails {
 
     private final Member member;
-    public CustomUserDetails(Member member) {
+    public CustomSecurityUserDetails(Member member) {
         this.member = member;
     }
 

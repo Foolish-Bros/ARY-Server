@@ -1,8 +1,8 @@
-package site.foolish.ary.domain.member.repository;
+package site.foolish.ary.member.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
-import site.foolish.ary.domain.member.entity.Member;
+import site.foolish.ary.member.domain.Member;
 
 @Repository
 public interface MemberRepository extends MongoRepository<Member, Long> {

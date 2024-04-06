@@ -1,11 +1,11 @@
-package site.foolish.ary.domain.member.dto;
+package site.foolish.ary.member.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import site.foolish.ary.domain.member.entity.Member;
-import site.foolish.ary.domain.member.entity.Role;
+import site.foolish.ary.member.domain.Member;
+import site.foolish.ary.member.domain.Role;
 
 @Getter
 @Setter

@@ -1,15 +1,14 @@
-package site.foolish.ary.domain.member.service;
+package site.foolish.ary.member.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import site.foolish.ary.domain.member.dto.JoinRequest;
-import site.foolish.ary.domain.member.dto.LoginRequest;
-import site.foolish.ary.domain.member.entity.Member;
-import site.foolish.ary.domain.member.repository.MemberRepository;
+import site.foolish.ary.member.dto.JoinRequest;
+import site.foolish.ary.member.dto.LoginRequest;
+import site.foolish.ary.member.domain.Member;
+import site.foolish.ary.member.repository.MemberRepository;
 
 import java.util.Optional;
 

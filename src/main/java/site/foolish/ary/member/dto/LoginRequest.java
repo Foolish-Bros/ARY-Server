@@ -1,4 +1,4 @@
-package site.foolish.ary.domain.member.dto;
+package site.foolish.ary.member.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,4 +1,4 @@
-package site.foolish.ary.domain.member.filter;
+package site.foolish.ary.member.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,8 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import site.foolish.ary.domain.member.entity.CustomUserDetails;
-import site.foolish.ary.domain.member.util.JWTUtil;
+import site.foolish.ary.member.domain.CustomSecurityUserDetails;
+import site.foolish.ary.member.util.JWTUtil;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -38,8 +38,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                             FilterChain chain, Authentication authentication) {
         // username 추출
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        String username = customUserDetails.getUsername();
+        CustomSecurityUserDetails customSecurityUserDetails = (CustomSecurityUserDetails) authentication.getPrincipal();
+        String username = customSecurityUserDetails.getUsername();
 
         // role 추출
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();

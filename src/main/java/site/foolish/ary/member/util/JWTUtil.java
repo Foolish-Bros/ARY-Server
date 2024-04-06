@@ -1,4 +1,4 @@
-package site.foolish.ary.domain.member.util;
+package site.foolish.ary.member.util;
 
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;

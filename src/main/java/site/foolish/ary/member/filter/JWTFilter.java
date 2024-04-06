@@ -1,4 +1,4 @@
-package site.foolish.ary.domain.member.filter;
+package site.foolish.ary.member.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,10 +10,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
-import site.foolish.ary.domain.member.entity.CustomUserDetails;
-import site.foolish.ary.domain.member.entity.Member;
-import site.foolish.ary.domain.member.entity.Role;
-import site.foolish.ary.domain.member.util.JWTUtil;
+import site.foolish.ary.member.domain.CustomSecurityUserDetails;
+import site.foolish.ary.member.domain.Member;
+import site.foolish.ary.member.domain.Role;
+import site.foolish.ary.member.util.JWTUtil;
 
 import java.io.IOException;
 
@@ -65,10 +65,10 @@ public class JWTFilter extends OncePerRequestFilter {
         member.setRole(Role.USER);
 
         // UserDetails 에 회원 정보 객체 담기
-        CustomUserDetails customUserDetails = new CustomUserDetails(member);
+        CustomSecurityUserDetails customSecurityUserDetails = new CustomSecurityUserDetails(member);
 
         // Spring Security 인증 토큰 생성
-        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        Authentication authToken = new UsernamePasswordAuthenticationToken(customSecurityUserDetails, null, customSecurityUserDetails.getAuthorities());
 
         // 세션에 사용자 등록
         SecurityContextHolder.getContext().setAuthentication(authToken);

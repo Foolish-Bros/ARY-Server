@@ -1,20 +1,18 @@
-package site.foolish.ary.domain.member.controller;
+package site.foolish.ary.member.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import site.foolish.ary.domain.member.dto.JoinRequest;
-import site.foolish.ary.domain.member.dto.LoginRequest;
-import site.foolish.ary.domain.member.entity.Member;
-import site.foolish.ary.domain.member.service.MemberService;
-import site.foolish.ary.domain.member.util.JWTUtil;
+import site.foolish.ary.member.dto.JoinRequest;
+import site.foolish.ary.member.dto.LoginRequest;
+import site.foolish.ary.member.domain.Member;
+import site.foolish.ary.member.service.MemberService;
+import site.foolish.ary.member.util.JWTUtil;
 
 import java.util.Collection;
 import java.util.Iterator;

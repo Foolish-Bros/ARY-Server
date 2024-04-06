@@ -1,4 +1,4 @@
-package site.foolish.ary.domain.member.entity;
+package site.foolish.ary.member.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
