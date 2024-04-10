@@ -12,6 +12,7 @@ import site.foolish.ary.member.domain.Role;
 import site.foolish.ary.member.domain.oauth.CustomOauth2UserDetails;
 import site.foolish.ary.member.domain.oauth.OAuth2UserInfo;
 import site.foolish.ary.member.domain.oauth.google.GoogleUserDetails;
+import site.foolish.ary.member.domain.oauth.kakao.KakaoUserDetails;
 import site.foolish.ary.member.repository.MemberRepository;
 
 @Slf4j
@@ -35,6 +36,9 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         if(provider.equals("google")) {
             log.info("google login");
             oAuth2UserInfo = new GoogleUserDetails(oAuth2User.getAttributes());
+        } else if (provider.equals("kakao")) {
+            log.info("kakao login");
+            oAuth2UserInfo = new KakaoUserDetails(oAuth2User.getAttributes());
         }
 
         String providerId = oAuth2UserInfo.getProviderId();
