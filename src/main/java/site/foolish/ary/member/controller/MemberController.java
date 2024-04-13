@@ -2,6 +2,10 @@ package site.foolish.ary.member.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,7 +17,11 @@ import site.foolish.ary.member.dto.LoginRequest;
 import site.foolish.ary.member.domain.Member;
 import site.foolish.ary.member.service.MemberService;
 import site.foolish.ary.member.util.JWTUtil;
+import site.foolish.ary.response.StatusEnum;
+import site.foolish.ary.response.dto.Message;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -65,52 +73,74 @@ public class MemberController {
     }
 
     @PostMapping("/join")
-    public String join(@RequestBody JoinRequest joinRequest,
-                       BindingResult bindingResult, Model model) {
+    public ResponseEntity<Message> join(@RequestBody JoinRequest joinRequest,
+                                        BindingResult bindingResult, Model model) {
 
         model.addAttribute("loginType", "security-login");
         model.addAttribute("pageName", "ARY Member Login");
 
-        // ID 중복 여부 확인
+        Message message = new Message();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+
         if(memberService.checkEmailDuplicated((joinRequest.getEmail()))) {
-            return "email 이 존재합니다.";
+            // ID 중복 여부 확인
+            message.setStatus(StatusEnum.OK);
+            message.setMessage("이메일이 존재합니다.");
+            message.setData(null);
+        } else if(!joinRequest.getPassword().equals(joinRequest.getPasswordCheck())) {
+            // 비밀번호 = 비밀번호 체크 여부 확인
+            message.setStatus(StatusEnum.OK);
+            message.setMessage("비밀번호가 일치하지 않습니다");
+            message.setData(null);
+        } else {
+            // 비밀번호 암호화 추가한 회원가입 로직으로 회원가입
+            memberService.securityJoin(joinRequest);
+
+            message.setStatus(StatusEnum.OK);
+            message.setMessage("가입 성공");
+            message.setData(joinRequest);
         }
 
-        // 비밀번호 = 비밀번호 체크 여부 확인
-        if(!joinRequest.getPassword().equals(joinRequest.getPasswordCheck())) {
-            return "비밀번호가 일치하지 않습니다.";
-        }
-
-        // 비밀번호 암호화 추가한 회원가입 로직으로 회원가입
-        memberService.securityJoin(joinRequest);
-
-        // 회원가입 시 홈 화면으로 이동
-        return "redirect:/member";
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }
 
     @GetMapping("/login")
-    public String loginPage(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Message> loginPage(@RequestBody LoginRequest loginRequest) {
 
         Member member = memberService.login(loginRequest);
+        Message message = new Message();
+        HttpHeaders headers = new HttpHeaders();
 
         if(member == null) {
-            return "ID 또는 비밀번호가 일치하지 않습니다";
+            message.setStatus(StatusEnum.OK);
+            message.setMessage("ID 또는 비밀번호가 일치하지 않습니다");
+            message.setData(null);
+        } else {
+            message.setStatus(StatusEnum.OK);
+            message.setMessage("로그인 성공");
+            message.setData(jwtUtil.createJwt(member.getEmail(), member.getRole().name(), 60 * 60 * 1000L));
         }
 
-        return jwtUtil.createJwt(member.getEmail(), member.getRole().name(), 60 * 60 * 1000L);
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }
 
     @GetMapping("/info")
-    public Member memberInfo(Authentication auth, Model model) {
-
+    public ResponseEntity<Message> memberInfo(Authentication auth, Model model) {
 
         model.addAttribute("loginType", "security-login");
         model.addAttribute("pageName", "ARY Member Login");
 
         Member loginMember = memberService.getLoginMemberByEmail(auth.getName());
+        Message message = new Message();
+        HttpHeaders headers = new HttpHeaders();
+
+        message.setStatus(StatusEnum.OK);
+        message.setMessage(loginMember.getName() + " 회원 정보");
+        message.setData(loginMember);
 
         model.addAttribute("member", loginMember);
-        return loginMember;
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }
 
     @GetMapping("/admin")
