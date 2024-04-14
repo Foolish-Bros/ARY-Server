@@ -34,44 +34,6 @@ public class MemberController {
     private final MemberService memberService;
     private final JWTUtil jwtUtil;
 
-    @GetMapping("")
-    public String home(Model model) {
-
-        model.addAttribute("loginType", "security-login");
-        model.addAttribute("pageName", "ARY Member Login");
-
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        Iterator<? extends GrantedAuthority> iter = authorities.iterator();
-        GrantedAuthority auth = iter.next();
-        String role = auth.getAuthority();
-
-        Member loginMember = memberService.getLoginMemberByEmail(email);
-
-        log.info(email);
-
-        if(loginMember.getEmail() != null) {
-            model.addAttribute("name", loginMember.getName());
-        }
-
-        return "home";
-    }
-
-    @GetMapping("/join")
-    public String joinPage(Model model) {
-
-        model.addAttribute("loginType", "security-login");
-        model.addAttribute("pageName", "ARY Member Login");
-
-        // 회원가입을 위해서 model 통해서 joinRequest 전달
-        model.addAttribute("joinRequest", new JoinRequest());
-
-        return "join";
-    }
-
     @PostMapping("/join")
     public ResponseEntity<Message> join(@RequestBody JoinRequest joinRequest,
                                         BindingResult bindingResult, Model model) {
@@ -106,7 +68,7 @@ public class MemberController {
     }
 
     @GetMapping("/login")
-    public ResponseEntity<Message> loginPage(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Message> login(@RequestBody LoginRequest loginRequest) {
 
         Member member = memberService.login(loginRequest);
         Message message = new Message();
@@ -121,6 +83,17 @@ public class MemberController {
             message.setMessage("로그인 성공");
             message.setData(jwtUtil.createJwt(member.getEmail(), member.getRole().name(), 60 * 60 * 1000L));
         }
+
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Message> logout(Authentication auth) {
+
+        Message message = new Message();
+        HttpHeaders headers = new HttpHeaders();
+
+
 
         return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }
