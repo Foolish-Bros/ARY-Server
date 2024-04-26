@@ -33,7 +33,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
 	// crawling
-	implementation 'org.seleniumhq.selenium:selenium-java:4.3.0'
+	implementation 'org.jsoup:jsoup:1.17.2'
 
 	// devtools
 	annotationProcessor 'org.projectlombok:lombok'
