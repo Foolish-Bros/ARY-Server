@@ -10,6 +10,7 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.foolish.ary.domain.review.Review;
+import site.foolish.ary.repository.review.ReviewRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,6 +21,8 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 public class CrawlingService {
+
+    private final ReviewRepository reviewRepository;
 
     public List<Review> crawling(String url) throws IOException, InterruptedException {
 
@@ -92,4 +95,12 @@ public class CrawlingService {
         return reviews;
     }
 
+    public List<Review> elevenCrawling(List<String> urls, String prodCode) throws IOException, InterruptedException {
+        reviewRepository.save(null);
+        return null;
+    }
+
+    public List<Review> auctionCrawling(List<String> urls, String prodCode) throws IOException, InterruptedException {
+        return null;
+    }
 }
