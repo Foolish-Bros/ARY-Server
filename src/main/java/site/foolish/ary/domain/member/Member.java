@@ -23,7 +23,7 @@ public class Member {
     private Role role;
 
     // provider : google 이 들어감
-    public String provider;
+    private String provider;
 
     // providerId : google 로그인 한 유저의 고유 ID가 들어감
     private String providerId;
