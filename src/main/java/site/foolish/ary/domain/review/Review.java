@@ -12,9 +12,7 @@ import site.foolish.ary.domain.member.Member;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Review {
-    private String id;
     private String productName;
-    private Member member;
     private String headline;
     private double rate;
     private String content;

@@ -5,14 +5,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import site.foolish.ary.domain.member.Member;
 import site.foolish.ary.domain.review.Review;
+import site.foolish.ary.dto.review.CrawlingRequest;
 import site.foolish.ary.response.StatusEnum;
 import site.foolish.ary.response.dto.Message;
-import site.foolish.ary.service.review.CrawlingService;
+import site.foolish.ary.service.member.MemberService;
+import site.foolish.ary.service.review.ReviewService;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,19 +25,23 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/crawling")
-public class CrawlingController {
+public class ReviewController {
 
-    private final CrawlingService crawlingService;
+    private final ReviewService reviewService;
+    private final MemberService memberService;
 
     @GetMapping("/coupang")
-    public ResponseEntity<Message> coupangCrawling(@RequestBody String url) throws IOException, InterruptedException {
+    public ResponseEntity<Message> coupangCrawling(Authentication auth, @RequestBody CrawlingRequest crawlingRequest) throws IOException, InterruptedException {
         Message message = new Message();
         HttpHeaders headers = new HttpHeaders();
+        log.info(auth.getName());
 
-        List<Review> reviewList = crawlingService.crawling(url);
+        Member member = memberService.getLoginMemberByEmail(auth.getName());
+
+        List<Review> reviewList = reviewService.crawling(crawlingRequest.getUrl(), member, crawlingRequest.getType());
 
         message.setStatus(StatusEnum.OK);
-        message.setMessage("크롤링 완료");
+        message.setMessage("Crawling Succeed");
         message.setData(reviewList);
 
         return new ResponseEntity<>(message, headers, HttpStatus.OK);

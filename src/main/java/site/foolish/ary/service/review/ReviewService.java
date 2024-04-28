@@ -8,42 +8,62 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import site.foolish.ary.domain.member.Member;
 import site.foolish.ary.domain.review.Review;
+import site.foolish.ary.domain.review.ReviewList;
 import site.foolish.ary.repository.review.ReviewRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class CrawlingService {
+public class ReviewService {
 
     private final ReviewRepository reviewRepository;
 
-    public List<Review> crawling(String url) throws IOException, InterruptedException {
+    public List<Review> crawling(String url, Member member, int type) throws IOException, InterruptedException {
 
+        List<Review> reviews = new ArrayList<>();
+
+        switch (type) {
+            case 1:
+                reviews = coupangCrawling(url, member);
+                break;
+            case 2:
+                reviews = elevenCrawling(url, member);
+                break;
+            case 3:
+                reviews = auctionCrawling(url, member);
+                break;
+            default:
+                break;
+        }
+
+        return reviews;
+    }
+
+    public List<Review> coupangCrawling(String baseUrl, Member member) throws IOException, InterruptedException {
         // 입력 받은 URL 주소의 product code 를 추출
-        String[] parts = url.substring(url.lastIndexOf("/products/") + 1, url.indexOf("?")).split("/");
+        String[] parts = baseUrl.substring(baseUrl.lastIndexOf("/products/") + 1, baseUrl.indexOf("?")).split("/");
         String prodCode = parts[parts.length - 1];
 
-        log.info(prodCode);
-
         List<String> urls = new ArrayList<>();
-        for (int page = 1; page <= 2; page++) {
-            // String tempUrl = "https://www.coupang.com/vp/products/6489163501?itemId=14238595532&vendorItemId=81483824120&src=0&spec=0&addtag=400&ctag=6489163501&lptag=%22%22&itime=20240428172417&wPcid=17090510975508450099880&wRef=&wTime=20240428172417&redirect=landing&isAddedCart=";
+
+        for (int page = 1; page <= 20; page++) {
             String tempUrl = "https://www.coupang.com/vp/product/reviews?productId=" + prodCode + "&page=" + page + "&size=5&sortBy=ORDER_SCORE_ASC&ratings=&q=&viRoleCode=3&ratingSummary=true";
             urls.add(tempUrl);
         }
 
-        return coupangCrawling(urls, prodCode);
-    }
-
-    public List<Review> coupangCrawling(List<String> urls, String prodCode) throws IOException, InterruptedException {
         List<Review> reviews = new ArrayList<>();
 
+        String title = "";
+
+        // Crawling 실행되는 part
 
         for(String url : urls) {
             Document soup = Jsoup.connect(url)
@@ -60,7 +80,7 @@ public class CrawlingService {
             Elements articles = soup.select("article.sdp-review__article__list");
 
             for (Element article : articles) {
-                Review data = new Review();
+                Review data;
 
                 // 평점
                 int rating = 0;
@@ -73,15 +93,18 @@ public class CrawlingService {
                 String prodName = article.selectFirst("div.sdp-review__article__list__info__product-info__name") != null ?
                         article.selectFirst("div.sdp-review__article__list__info__product-info__name").text().trim() : "-";
 
+                // title 가져오기
+                title = prodName.split(",")[0];
+
                 // 헤드라인(타이틀)
                 String headline = article.selectFirst("div.sdp-review__article__list__headline") != null ?
                         article.selectFirst("div.sdp-review__article__list__headline").text().trim() : "등록된 헤드라인이 없습니다";
 
                 // 리뷰 내용
                 String reviewContent = article.selectFirst("div.sdp-review__article__list__review > div") != null ?
-                        article.selectFirst("div.sdp-review__article__list__review > div").text().trim().replaceAll("\\s", "") : "등록된 리뷰내용이 없습니다";
+                        article.selectFirst("div.sdp-review__article__list__review > div").text().trim() : "등록된 리뷰내용이 없습니다";
 
-                Review.builder()
+                data = Review.builder()
                         .productName(prodName)
                         .rate(rating)
                         .headline(headline)
@@ -92,17 +115,31 @@ public class CrawlingService {
 
                 Thread.sleep(10);
             }
+
         }
+
+        // Crawling 끝나는 부분
+
+        // TODO: 별점 평균 가져오기
+
+        ReviewList reviewList = ReviewList.builder()
+                .member(member)
+                .title(title)
+                .reviews(reviews)
+                .url(baseUrl)
+                .createTime(new Date())
+                .build();
+
+        reviewRepository.save(reviewList);
 
         return reviews;
     }
 
-    public List<Review> elevenCrawling(List<String> urls, String prodCode) throws IOException, InterruptedException {
-        reviewRepository.save(null);
+    public List<Review> elevenCrawling(String baseUrl, Member member) throws IOException, InterruptedException {
         return null;
     }
 
-    public List<Review> auctionCrawling(List<String> urls, String prodCode) throws IOException, InterruptedException {
+    public List<Review> auctionCrawling(String baseUrl, Member member) throws IOException, InterruptedException {
         return null;
     }
 }
