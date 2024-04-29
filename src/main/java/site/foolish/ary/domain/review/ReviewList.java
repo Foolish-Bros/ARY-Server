@@ -17,6 +17,7 @@ public class ReviewList {
     private String id;
     private String url;
     private String title;
+    private float totalRate;
     private Member member;
     private List<Review> reviews;
     private Date createdAt;

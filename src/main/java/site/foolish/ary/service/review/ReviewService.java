@@ -29,9 +29,9 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
 
-    public List<Review> crawling(String url, Member member, int type) throws IOException, InterruptedException, ParseException {
+    public ReviewList crawling(String url, Member member, int type) throws IOException, InterruptedException, ParseException {
 
-        List<Review> reviews = new ArrayList<>();
+        ReviewList reviews = new ReviewList();
 
         switch (type) {
             case 1:
@@ -50,10 +50,12 @@ public class ReviewService {
         return reviews;
     }
 
+    // TODO : 쿠팡(제목, 별점평균) 11번가(별점평균) 코드 짜기
+
     /**
      * 쿠팡 크롤링
      */
-    public List<Review> coupangCrawling(String baseUrl, Member member) throws IOException, InterruptedException, ParseException {
+    public ReviewList coupangCrawling(String baseUrl, Member member) throws IOException, InterruptedException, ParseException {
         // 입력 받은 URL 주소의 product code 를 추출
         String[] parts = baseUrl.substring(baseUrl.lastIndexOf("/products/") + 1, baseUrl.indexOf("?")).split("/");
         String prodCode = parts[parts.length - 1];
@@ -67,7 +69,19 @@ public class ReviewService {
 
         List<Review> reviews = new ArrayList<>();
 
-        String title = "";
+        Document soupMain = Jsoup.connect(baseUrl)
+                .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+                .header("authority", "weblog.coupang.com")
+                .header("scheme", "https")
+                .header("origin", "https://www.coupang.com")
+                .header("Sec-ch-ua-mobile", "?0")
+                .header("Sec-ch-ua-platform", "macOS")
+                .header("Cookie", "PCID=31489593180081104183684; _fbp=fb.1.1644931520418.1544640325; gd1=Y; X-CP-PT-locale=ko_KR; MARKETID=31489593180081104183684; sid=03ae1c0ed61946c19e760cf1a3d9317d808aca8b; overrideAbTestGroup=%5B%5D; x-coupang-origin-region=KOREA; x-coupang-accept-language=ko_KR;")
+                .header("referer", "https://www.coupang.com")
+                .get();
+
+        String title = soupMain.select("h2.prod-buy-header__title").text().trim();
+        float totalRate = Float.parseFloat(soupMain.select("span.rds-rating-score").text().trim());
 
         // Crawling 실행되는 part
 
@@ -98,9 +112,6 @@ public class ReviewService {
                 // 구매자 상품명
                 String prodName = article.selectFirst("div.sdp-review__article__list__info__product-info__name") != null ?
                         Objects.requireNonNull(article.selectFirst("div.sdp-review__article__list__info__product-info__name")).text().trim() : "-";
-
-                // title 가져오기
-                title = prodName.split(",")[0];
 
                 // 헤드라인(타이틀)
                 String headline = article.selectFirst("div.sdp-review__article__list__headline") != null ?
@@ -137,6 +148,7 @@ public class ReviewService {
         ReviewList reviewList = ReviewList.builder()
                 .member(member)
                 .title(title)
+                .totalRate(totalRate)
                 .reviews(reviews)
                 .url(baseUrl)
                 .createdAt(new Date())
@@ -144,13 +156,13 @@ public class ReviewService {
 
         reviewRepository.save(reviewList);
 
-        return reviews;
+        return reviewList;
     }
 
     /**
      * 11번가 크롤링
      */
-    public List<Review> elevenCrawling(String baseUrl, Member member) throws IOException, InterruptedException, ParseException {
+    public ReviewList elevenCrawling(String baseUrl, Member member) throws IOException, InterruptedException, ParseException {
         // 입력 받은 URL 주소의 product code 를 추출
         String[] parts = baseUrl.substring(baseUrl.lastIndexOf("/products/") + 1, baseUrl.indexOf("?")).split("/");
         String prodCode = parts[parts.length - 1];
@@ -164,7 +176,7 @@ public class ReviewService {
 
         List<Review> reviews = new ArrayList<>();
 
-        Document soupTitle = Jsoup.connect(baseUrl)
+        Document soupMain = Jsoup.connect(baseUrl)
                 .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
                 .header("authority", "www.11st.co.kr")
                 .header("scheme", "https")
@@ -175,7 +187,14 @@ public class ReviewService {
                 .header("referer", "https://www.11st.co.kr/")
                 .get();
 
-        String title = soupTitle.select("h1.title").text().trim();
+        String title = soupMain.select("h1.title").text().trim();
+        float totalRate = 0;
+        String totalRateString = soupMain.selectFirst("span.c_seller_grade") != null ?
+                soupMain.selectFirst("div.meta span.c_seller_grade").text().trim() : "0";
+        if(!totalRateString.isEmpty()) {
+            String num = totalRateString.replaceAll("\\D", "");
+            totalRate = Float.parseFloat(num.split("")[1]+ "." + num.split("")[2]);
+        }
 
         // Crawling 실행되는 부분
 
@@ -244,6 +263,7 @@ public class ReviewService {
         ReviewList reviewList = ReviewList.builder()
                 .member(member)
                 .title(title)
+                .totalRate(totalRate)
                 .reviews(reviews)
                 .url(baseUrl)
                 .createdAt(new Date())
@@ -251,10 +271,10 @@ public class ReviewService {
 
         reviewRepository.save(reviewList);
 
-        return reviews;
+        return reviewList;
     }
 
-    public List<Review> auctionCrawling(String baseUrl, Member member) throws IOException, InterruptedException {
+    public ReviewList auctionCrawling(String baseUrl, Member member) throws IOException, InterruptedException {
         return null;
     }
 }

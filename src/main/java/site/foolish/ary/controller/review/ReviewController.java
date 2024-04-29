@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import site.foolish.ary.domain.member.Member;
 import site.foolish.ary.domain.review.Review;
+import site.foolish.ary.domain.review.ReviewList;
 import site.foolish.ary.dto.review.CrawlingRequest;
 import site.foolish.ary.response.StatusEnum;
 import site.foolish.ary.response.dto.Message;
@@ -38,8 +39,9 @@ public class ReviewController {
         log.info(auth.getName());
 
         Member member = memberService.getLoginMemberByEmail(auth.getName());
+        member.setPassword("hidden");
 
-        List<Review> reviewList = reviewService.crawling(crawlingRequest.getUrl(), member, crawlingRequest.getType());
+        ReviewList reviewList = reviewService.crawling(crawlingRequest.getUrl(), member, crawlingRequest.getType());
 
         message.setStatus(StatusEnum.OK);
         message.setMessage("Crawling Succeed");
