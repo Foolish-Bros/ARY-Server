@@ -14,9 +14,12 @@ import site.foolish.ary.domain.review.ReviewList;
 import site.foolish.ary.repository.review.ReviewRepository;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -26,7 +29,7 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
 
-    public List<Review> crawling(String url, Member member, int type) throws IOException, InterruptedException {
+    public List<Review> crawling(String url, Member member, int type) throws IOException, InterruptedException, ParseException {
 
         List<Review> reviews = new ArrayList<>();
 
@@ -47,7 +50,10 @@ public class ReviewService {
         return reviews;
     }
 
-    public List<Review> coupangCrawling(String baseUrl, Member member) throws IOException, InterruptedException {
+    /**
+     * 쿠팡 크롤링
+     */
+    public List<Review> coupangCrawling(String baseUrl, Member member) throws IOException, InterruptedException, ParseException {
         // 입력 받은 URL 주소의 product code 를 추출
         String[] parts = baseUrl.substring(baseUrl.lastIndexOf("/products/") + 1, baseUrl.indexOf("?")).split("/");
         String prodCode = parts[parts.length - 1];
@@ -91,24 +97,32 @@ public class ReviewService {
 
                 // 구매자 상품명
                 String prodName = article.selectFirst("div.sdp-review__article__list__info__product-info__name") != null ?
-                        article.selectFirst("div.sdp-review__article__list__info__product-info__name").text().trim() : "-";
+                        Objects.requireNonNull(article.selectFirst("div.sdp-review__article__list__info__product-info__name")).text().trim() : "-";
 
                 // title 가져오기
                 title = prodName.split(",")[0];
 
                 // 헤드라인(타이틀)
                 String headline = article.selectFirst("div.sdp-review__article__list__headline") != null ?
-                        article.selectFirst("div.sdp-review__article__list__headline").text().trim() : "등록된 헤드라인이 없습니다";
+                        Objects.requireNonNull(article.selectFirst("div.sdp-review__article__list__headline")).text().trim() : "등록된 헤드라인이 없습니다";
 
                 // 리뷰 내용
                 String reviewContent = article.selectFirst("div.sdp-review__article__list__review > div") != null ?
-                        article.selectFirst("div.sdp-review__article__list__review > div").text().trim() : "등록된 리뷰내용이 없습니다";
+                        Objects.requireNonNull(article.selectFirst("div.sdp-review__article__list__review > div")).text().trim() : "등록된 리뷰내용이 없습니다";
+
+                // Date
+                String dateString  = article.selectFirst("div.sdp-review__article__list__info__product-info__reg-date") != null ?
+                        article.selectFirst("div.sdp-review__article__list__info__product-info__reg-date").text().trim() : "-";
+
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd");
+                Date date = formatter.parse(dateString);
 
                 data = Review.builder()
                         .productName(prodName)
                         .rate(rating)
                         .headline(headline)
                         .content(reviewContent)
+                        .date(date)
                         .build();
 
                 reviews.add(data);
@@ -120,14 +134,12 @@ public class ReviewService {
 
         // Crawling 끝나는 부분
 
-        // TODO: 별점 평균 가져오기
-
         ReviewList reviewList = ReviewList.builder()
                 .member(member)
                 .title(title)
                 .reviews(reviews)
                 .url(baseUrl)
-                .createTime(new Date())
+                .createdAt(new Date())
                 .build();
 
         reviewRepository.save(reviewList);
@@ -135,8 +147,111 @@ public class ReviewService {
         return reviews;
     }
 
-    public List<Review> elevenCrawling(String baseUrl, Member member) throws IOException, InterruptedException {
-        return null;
+    /**
+     * 11번가 크롤링
+     */
+    public List<Review> elevenCrawling(String baseUrl, Member member) throws IOException, InterruptedException, ParseException {
+        // 입력 받은 URL 주소의 product code 를 추출
+        String[] parts = baseUrl.substring(baseUrl.lastIndexOf("/products/") + 1, baseUrl.indexOf("?")).split("/");
+        String prodCode = parts[parts.length - 1];
+
+        List<String> urls = new ArrayList<>();
+
+        for (int page = 1; page <= 20; page++) {
+            String tempUrl = "https://www.11st.co.kr/product/SellerProductDetail.tmall?method=getProductReviewList&prdNo=" + prodCode + "&page=" + page + "&pageTypCd=first&reviewDispYn=Y";
+            urls.add(tempUrl);
+        }
+
+        List<Review> reviews = new ArrayList<>();
+
+        Document soupTitle = Jsoup.connect(baseUrl)
+                .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+                .header("authority", "www.11st.co.kr")
+                .header("scheme", "https")
+                .header("origin", "https://www.11st.co.kr/")
+                .header("Sec-ch-ua-mobile", "?0")
+                .header("Sec-ch-ua-platform", "macOS")
+                .header("Cookie", "_gcl_au=1.1.2002688257.1714358136; _fbp=fb.2.1714358135779.1926387357; _ga=GA1.1.1080026663.1714358136; _ga_6VBF5N51X2=GS1.1.1714358136.1.0.1714358136.60.0.0; PCID=17143581363649815761088; XSRF-TOKEN=47a7d600-1d00-5de8-74ba-353cdca4394e; TP=scrnChk%7CY; AUID=AUID_kE9oh3ri4QqEpPXWmCHmtQ; TT=CONN_IP_LOC%7CDOM; RCPD=2604446520; PCID_FRV=true; DMP_UID=(DMPC)447c4767-0f46-4f33-8de6-60851c7823e5; JSESSIONID=E72AD1958407FDF23BD442A0F17497D4.Tomcat")
+                .header("referer", "https://www.11st.co.kr/")
+                .get();
+
+        String title = soupTitle.select("h1.title").text().trim();
+
+        // Crawling 실행되는 부분
+
+        for(String url : urls) {
+            Document soup = Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+                    .header("authority", "www.11st.co.kr")
+                    .header("scheme", "https")
+                    .header("origin", "https://www.11st.co.kr/")
+                    .header("Sec-ch-ua-mobile", "?0")
+                    .header("Sec-ch-ua-platform", "macOS")
+                    .header("Cookie", "_gcl_au=1.1.2002688257.1714358136; _fbp=fb.2.1714358135779.1926387357; _ga=GA1.1.1080026663.1714358136; _ga_6VBF5N51X2=GS1.1.1714358136.1.0.1714358136.60.0.0; PCID=17143581363649815761088; XSRF-TOKEN=47a7d600-1d00-5de8-74ba-353cdca4394e; TP=scrnChk%7CY; AUID=AUID_kE9oh3ri4QqEpPXWmCHmtQ; TT=CONN_IP_LOC%7CDOM; RCPD=2604446520; PCID_FRV=true; DMP_UID=(DMPC)447c4767-0f46-4f33-8de6-60851c7823e5; JSESSIONID=E72AD1958407FDF23BD442A0F17497D4.Tomcat")
+                    .header("referer", "https://www.11st.co.kr/")
+                    .get();
+
+            Elements articles = soup.select("div.review_list ul li");
+
+            for(Element article : articles) {
+                Review data;
+
+                // product Name
+                String prodName = title;
+                prodName+= article.selectFirst("div.cfix div.bbs_cont p.option_txt")  != null ?
+                        article.selectFirst("div.cfix div.bbs_cont p.option_txt").text().trim() : "제품명이 없습니다.";
+
+                // headline
+                // 11번가 review에는 headline이 존재 x
+                // String headline = "-";
+
+                // rate
+                int rate = 0;
+                String rateString = article.selectFirst("span.selr_star") != null ?
+                        article.selectFirst("span.selr_star").text().trim() : "0";
+                if(!rateString.isEmpty()) {
+                    rate = Integer.parseInt(rateString.replaceAll("\\D", "").split("")[1]);
+                }
+
+                // content
+                String content = article.selectFirst("span.summ_conts") != null ?
+                        article.selectFirst("span.summ_conts").text().trim() : "등록된 내용이 없습니다.";
+
+                // date
+                String dateString  = article.selectFirst("span.date") != null ?
+                        article.selectFirst("span.date").text().trim() : "-";
+
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd");
+                Date date = formatter.parse(dateString);
+
+                data = Review.builder()
+                        .productName(prodName)
+                        .rate(rate)
+                        .headline("-")
+                        .content(content)
+                        .date(date)
+                        .build();
+
+                reviews.add(data);
+
+                Thread.sleep(10);
+            }
+
+        }
+
+        // Crawling end
+
+        ReviewList reviewList = ReviewList.builder()
+                .member(member)
+                .title(title)
+                .reviews(reviews)
+                .url(baseUrl)
+                .createdAt(new Date())
+                .build();
+
+        reviewRepository.save(reviewList);
+
+        return reviews;
     }
 
     public List<Review> auctionCrawling(String baseUrl, Member member) throws IOException, InterruptedException {

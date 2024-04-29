@@ -19,5 +19,5 @@ public class ReviewList {
     private String title;
     private Member member;
     private List<Review> reviews;
-    private Date createTime;
+    private Date createdAt;
 }

@@ -19,19 +19,20 @@ import site.foolish.ary.service.member.MemberService;
 import site.foolish.ary.service.review.ReviewService;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/crawling")
+@RequestMapping("/review")
 public class ReviewController {
 
     private final ReviewService reviewService;
     private final MemberService memberService;
 
-    @GetMapping("/coupang")
-    public ResponseEntity<Message> coupangCrawling(Authentication auth, @RequestBody CrawlingRequest crawlingRequest) throws IOException, InterruptedException {
+    @GetMapping("/crawling")
+    public ResponseEntity<Message> coupangCrawling(Authentication auth, @RequestBody CrawlingRequest crawlingRequest) throws IOException, InterruptedException, ParseException {
         Message message = new Message();
         HttpHeaders headers = new HttpHeaders();
         log.info(auth.getName());
@@ -46,4 +47,6 @@ public class ReviewController {
 
         return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }
+
+
 }
