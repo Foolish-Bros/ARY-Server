@@ -29,6 +29,7 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
 
+    // Divide crawling by url
     public ReviewList crawling(String url, Member member, int type) throws IOException, InterruptedException, ParseException {
 
         ReviewList reviews = new ReviewList();
@@ -274,7 +275,132 @@ public class ReviewService {
         return reviewList;
     }
 
-    public ReviewList auctionCrawling(String baseUrl, Member member) throws IOException, InterruptedException {
-        return null;
+    public ReviewList auctionCrawling(String baseUrl, Member member) throws IOException, InterruptedException, ParseException {
+        String[] parts = baseUrl.substring(baseUrl.lastIndexOf("?itemno=") + 1).split("=");
+        String prodCode = parts[parts.length - 1];
+
+        log.info(prodCode);
+
+        List<String> urls = new ArrayList<>();
+
+        for (int page = 1; page <= 20; page++) {
+            String tempUrl = "https://amtour.auction.co.kr/Item/GetReviewList?itemNo=" + prodCode + "&filter=&sort=popular&pageIndex=" + page + "&tourType=";
+            urls.add(tempUrl);
+        }
+
+        List<Review> reviews = new ArrayList<>();
+
+        Document soupMain = Jsoup.connect(baseUrl)
+                .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+                .header("authority", "www.auction.co.kr")
+                .header("scheme", "https")
+                .header("origin", "http://www.auction.co.kr/")
+                .header("Sec-ch-ua-mobile", "?0")
+                .header("Sec-ch-ua-platform", "macOS")
+                .header("Cookie", "_gcl_au=1.1.2002688257.1714358136; _fbp=fb.2.1714358135779.1926387357; _ga=GA1.1.1080026663.1714358136; _ga_6VBF5N51X2=GS1.1.1714358136.1.0.1714358136.60.0.0; PCID=17143581363649815761088; XSRF-TOKEN=47a7d600-1d00-5de8-74ba-353cdca4394e; TP=scrnChk%7CY; AUID=AUID_kE9oh3ri4QqEpPXWmCHmtQ; TT=CONN_IP_LOC%7CDOM; RCPD=2604446520; PCID_FRV=true; DMP_UID=(DMPC)447c4767-0f46-4f33-8de6-60851c7823e5; JSESSIONID=E72AD1958407FDF23BD442A0F17497D4.Tomcat")
+                .header("referer", "http://www.auction.co.kr/")
+                .get();
+
+        String title = soupMain.select("h1.itemtit").text().trim();
+
+        String totalRateString = soupMain.select("p.text__value").text();
+
+        String ratePart = totalRateString.substring(totalRateString.lastIndexOf("중 ") + 2).split("점")[0];
+
+        float totalRate = Float.parseFloat(ratePart);
+
+        log.info(String.valueOf(totalRate));
+
+        // Crawling 실행되는 부분
+
+        for(String url : urls) {
+            Document soup = Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+                    .header("authority", "www.auction.co.kr")
+                    .header("scheme", "https")
+                    .header("origin", "http://www.auction.co.kr/")
+                    .header("Sec-ch-ua-mobile", "?0")
+                    .header("Sec-ch-ua-platform", "macOS")
+                    .header("Cookie", "_gcl_au=1.1.2002688257.1714358136; _fbp=fb.2.1714358135779.1926387357; _ga=GA1.1.1080026663.1714358136; _ga_6VBF5N51X2=GS1.1.1714358136.1.0.1714358136.60.0.0; PCID=17143581363649815761088; XSRF-TOKEN=47a7d600-1d00-5de8-74ba-353cdca4394e; TP=scrnChk%7CY; AUID=AUID_kE9oh3ri4QqEpPXWmCHmtQ; TT=CONN_IP_LOC%7CDOM; RCPD=2604446520; PCID_FRV=true; DMP_UID=(DMPC)447c4767-0f46-4f33-8de6-60851c7823e5; JSESSIONID=E72AD1958407FDF23BD442A0F17497D4.Tomcat")
+                    .header("referer", "http://www.auction.co.kr/")
+                    .get();
+
+            Elements articles = soup.select("body li");
+//            log.info(String.valueOf(articles.get(1)));
+
+            for(Element article : articles) {
+                Review data;
+
+                // 평점
+                int rating;
+                String ratingPercent = article.select("div.box__info div.box__star span.image__star-fill").attr("style");
+                switch (ratingPercent) {
+                    case "width:100%":
+                        rating = 5;
+                        break;
+                    case "width:80%":
+                        rating = 4;
+                        break;
+                    case "width:60%":
+                        rating = 3;
+                        break;
+                    case "width:40%":
+                        rating = 2;
+                        break;
+                    case "width:20%":
+                        rating = 1;
+                        break;
+                    case "width:0%":
+                        rating = 0;
+                        break;
+                    default:
+                        continue;
+                }
+
+                // 구매자 상품명
+                String prodName = title + article.select("span.text__option-selected").text().trim();
+
+                // 헤드라인(타이틀)
+                String headline = "-";
+
+                // 리뷰 내용
+                article.select("div.box__review-text p.text");
+                String reviewContent = article.select("div.box__review-text p.text").text().trim();
+
+                // Date
+                String dateString  = article.select("span.text__date").text().trim();
+
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd");
+                Date date = formatter.parse(dateString);
+
+                data = Review.builder()
+                        .productName(prodName)
+                        .rate(rating)
+                        .headline(headline)
+                        .content(reviewContent)
+                        .date(date)
+                        .build();
+
+                reviews.add(data);
+
+                Thread.sleep(10);
+            }
+
+        }
+
+        // Crawling end
+
+        ReviewList reviewList = ReviewList.builder()
+                .member(member)
+                .title(title)
+                .totalRate(totalRate)
+                .reviews(reviews)
+                .url(baseUrl)
+                .createdAt(new Date())
+                .build();
+
+        reviewRepository.save(reviewList);
+
+        return reviewList;
     }
 }
