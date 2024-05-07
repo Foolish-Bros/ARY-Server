@@ -6,10 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import site.foolish.ary.domain.member.Member;
 import site.foolish.ary.domain.review.Review;
 import site.foolish.ary.domain.review.ReviewList;
@@ -36,7 +33,6 @@ public class ReviewController {
     public ResponseEntity<Message> coupangCrawling(Authentication auth, @RequestBody CrawlingRequest crawlingRequest) throws IOException, InterruptedException, ParseException {
         Message message = new Message();
         HttpHeaders headers = new HttpHeaders();
-        log.info(auth.getName());
 
         Member member = memberService.getLoginMemberByEmail(auth.getName());
         member.setPassword("hidden");
@@ -48,6 +44,20 @@ public class ReviewController {
         message.setData(reviewList);
 
         return new ResponseEntity<>(message, headers, HttpStatus.OK);
+    }
+
+    @PostMapping("/delete")
+    public ResponseEntity<Message> deleteReview(@RequestBody String id) throws ParseException {
+        Message message = new Message();
+        HttpHeaders headers = new HttpHeaders();
+
+
+
+        message.setStatus(StatusEnum.OK);
+        message.setMessage("Crawling Succeed");
+        message.setData(null);
+
+        return null;
     }
 
 

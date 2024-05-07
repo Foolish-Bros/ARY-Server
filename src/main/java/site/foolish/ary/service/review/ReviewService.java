@@ -51,8 +51,6 @@ public class ReviewService {
         return reviews;
     }
 
-    // TODO : 쿠팡(제목, 별점평균) 11번가(별점평균) 코드 짜기
-
     /**
      * 쿠팡 크롤링
      */
@@ -275,6 +273,9 @@ public class ReviewService {
         return reviewList;
     }
 
+    /**
+     * Auction 크롤링
+     */
     public ReviewList auctionCrawling(String baseUrl, Member member) throws IOException, InterruptedException, ParseException {
         String[] parts = baseUrl.substring(baseUrl.lastIndexOf("?itemno=") + 1).split("=");
         String prodCode = parts[parts.length - 1];
@@ -402,5 +403,11 @@ public class ReviewService {
         reviewRepository.save(reviewList);
 
         return reviewList;
+    }
+
+    public boolean deleteReview(String id) {
+        reviewRepository.deleteById(id);
+
+        return reviewRepository.findById(id).isEmpty();
     }
 }
