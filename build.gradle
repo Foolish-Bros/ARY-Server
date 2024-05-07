@@ -32,6 +32,9 @@ dependencies {
 	// database
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
+	// crawling
+	implementation 'org.jsoup:jsoup:1.17.2'
+
 	// devtools
 	annotationProcessor 'org.projectlombok:lombok'
 	compileOnly 'org.projectlombok:lombok'

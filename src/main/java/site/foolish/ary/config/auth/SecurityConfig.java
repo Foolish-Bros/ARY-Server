@@ -12,10 +12,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import site.foolish.ary.member.domain.Role;
-import site.foolish.ary.member.filter.JWTFilter;
-import site.foolish.ary.member.filter.LoginFilter;
-import site.foolish.ary.member.util.JWTUtil;
+import site.foolish.ary.domain.member.Role;
+import site.foolish.ary.filter.member.JWTFilter;
+import site.foolish.ary.filter.member.LoginFilter;
+import site.foolish.ary.util.JWTUtil;
 
 @Configuration
 @EnableWebSecurity
