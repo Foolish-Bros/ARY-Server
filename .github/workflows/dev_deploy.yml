@@ -1,4 +1,4 @@
-name: ViVio Dev CI/CD
+name: ARY Dev CI/CD
 
 on:
   pull_request:
