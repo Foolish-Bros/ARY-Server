@@ -11,6 +11,7 @@ import site.foolish.ary.domain.member.Member;
 import site.foolish.ary.domain.review.Review;
 import site.foolish.ary.domain.review.ReviewList;
 import site.foolish.ary.dto.review.CrawlingRequest;
+import site.foolish.ary.dto.review.ReviewDeleteRequest;
 import site.foolish.ary.response.StatusEnum;
 import site.foolish.ary.response.dto.Message;
 import site.foolish.ary.service.member.MemberService;
@@ -46,18 +47,23 @@ public class ReviewController {
         return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }
 
-    @PostMapping("/delete")
-    public ResponseEntity<Message> deleteReview(@RequestBody String id) throws ParseException {
+    // TODO: Test 해야됨
+    @DeleteMapping("/delete")
+    public ResponseEntity<Message> deleteReview(@RequestBody ReviewDeleteRequest request) throws ParseException {
         Message message = new Message();
         HttpHeaders headers = new HttpHeaders();
 
+        log.info(request.getId());
 
+        if(reviewService.deleteReview(request.getId())) {
+            message.setStatus(StatusEnum.OK);
+            message.setMessage("Delete Succeed");
+        } else {
+            message.setStatus(StatusEnum.FAILED);
+            message.setMessage("Delete Failed");
+        }
 
-        message.setStatus(StatusEnum.OK);
-        message.setMessage("Crawling Succeed");
-        message.setData(null);
-
-        return null;
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }
 
 

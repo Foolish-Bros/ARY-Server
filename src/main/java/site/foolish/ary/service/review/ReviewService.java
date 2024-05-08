@@ -16,10 +16,7 @@ import site.foolish.ary.repository.review.ReviewRepository;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -405,9 +402,26 @@ public class ReviewService {
         return reviewList;
     }
 
+    /**
+     * 리뷰 삭제
+     */
     public boolean deleteReview(String id) {
         reviewRepository.deleteById(id);
 
         return reviewRepository.findById(id).isEmpty();
+    }
+
+    /**
+     * 멤버의 모든 리뷰 가져오기
+     */
+    public List<ReviewList> getMemberReviewsInfo(Member member) {
+        List<ReviewList> reviewLists = reviewRepository.findAllByMember(member);
+
+        for(ReviewList reviewList : reviewLists) {
+            reviewList.setReviews(null);
+        }
+
+
+        return reviewLists;
     }
 }
