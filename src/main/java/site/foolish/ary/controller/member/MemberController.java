@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import site.foolish.ary.domain.review.ReviewList;
+import site.foolish.ary.dto.member.EmailRequest;
 import site.foolish.ary.dto.member.LoginRequest;
 import site.foolish.ary.dto.member.JoinRequest;
 import site.foolish.ary.domain.member.Member;
@@ -32,18 +33,33 @@ public class MemberController {
     private final ReviewService reviewService;
     private final JWTUtil jwtUtil;
 
-    @PostMapping("/join")
-    public ResponseEntity<Message> join(@RequestBody JoinRequest joinRequest) {
+    @GetMapping("/emailDuplicated")
+    public ResponseEntity<Message> emailDuplicated(@RequestBody EmailRequest request) {
         Message message = new Message();
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
-        if(memberService.checkEmailDuplicated((joinRequest.getEmail()))) {
-            // ID 중복 여부 확인
+        if(memberService.checkEmailDuplicated((request.getEmail()))) {
             message.setStatus(StatusEnum.FAILED);
+            message.setSuccess(false);
             message.setMessage("이메일이 존재합니다.");
             message.setData(null);
-        } else if(!joinRequest.getPassword().equals(joinRequest.getPasswordCheck())) {
+        } else {
+            message.setStatus(StatusEnum.OK);
+            message.setSuccess(true);
+            message.setMessage("사용 가능한 이메일입니다.");
+            message.setData(null);
+        }
+
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
+    }
+
+    @PostMapping("/join")
+    public ResponseEntity<Message> join(@RequestBody JoinRequest joinRequest) {
+
+        Message message = new Message();
+        HttpHeaders headers = new HttpHeaders();
+
+        if(!joinRequest.getPassword().equals(joinRequest.getPasswordCheck())) {
             // 비밀번호 = 비밀번호 체크 여부 확인
             message.setStatus(StatusEnum.FAILED);
             message.setMessage("비밀번호가 일치하지 않습니다");
@@ -70,7 +86,6 @@ public class MemberController {
         if(member == null) {
             message.setStatus(StatusEnum.FAILED);
             message.setMessage("ID 또는 비밀번호가 일치하지 않습니다");
-            message.setData(null);
         } else {
             message.setStatus(StatusEnum.OK);
             message.setMessage("로그인 성공");
