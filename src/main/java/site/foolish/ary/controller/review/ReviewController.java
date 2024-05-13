@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import site.foolish.ary.domain.member.Member;
 import site.foolish.ary.domain.review.Review;
 import site.foolish.ary.domain.review.ReviewList;
+import site.foolish.ary.dto.review.CrawlingMoreRequest;
 import site.foolish.ary.dto.review.CrawlingRequest;
+import site.foolish.ary.dto.review.ReviewDeleteRequest;
 import site.foolish.ary.response.StatusEnum;
 import site.foolish.ary.response.dto.Message;
 import site.foolish.ary.service.member.MemberService;
@@ -29,8 +31,8 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final MemberService memberService;
 
-    @GetMapping("/crawling")
-    public ResponseEntity<Message> coupangCrawling(Authentication auth, @RequestBody CrawlingRequest crawlingRequest) throws IOException, InterruptedException, ParseException {
+    @PostMapping("/crawling")
+    public ResponseEntity<Message> crawling(Authentication auth, @RequestBody CrawlingRequest crawlingRequest) throws IOException, InterruptedException, ParseException {
         Message message = new Message();
         HttpHeaders headers = new HttpHeaders();
 
@@ -46,19 +48,38 @@ public class ReviewController {
         return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }
 
-    @PostMapping("/delete")
-    public ResponseEntity<Message> deleteReview(@RequestBody String id) throws ParseException {
+    @PostMapping("/crawling/more")
+    public ResponseEntity<Message> crawlingMore(@RequestBody CrawlingMoreRequest request) throws IOException, InterruptedException, ParseException {
         Message message = new Message();
         HttpHeaders headers = new HttpHeaders();
 
-
+        ReviewList reviewList = reviewService.crawling(request.getId(), request.getTimes());
 
         message.setStatus(StatusEnum.OK);
-        message.setMessage("Crawling Succeed");
-        message.setData(null);
+        message.setMessage("Crawled for" + request.getTimes() + " Succeed");
+        message.setData(reviewList);
 
-        return null;
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }
 
+    @DeleteMapping("/delete")
+    public ResponseEntity<Message> deleteReview(@RequestBody ReviewDeleteRequest request) throws ParseException {
+        Message message = new Message();
+        HttpHeaders headers = new HttpHeaders();
+
+        log.info(request.getId());
+
+        if(reviewService.deleteReview(request.getId())) {
+            message.setStatus(StatusEnum.OK);
+            message.setSuccess(true);
+            message.setMessage("Delete Succeed");
+        } else {
+            message.setStatus(StatusEnum.FAILED);
+            message.setSuccess(false);
+            message.setMessage("Delete Failed");
+        }
+
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
+    }
 
 }

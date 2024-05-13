@@ -7,18 +7,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import site.foolish.ary.domain.review.ReviewList;
+import site.foolish.ary.dto.member.EmailRequest;
 import site.foolish.ary.dto.member.LoginRequest;
 import site.foolish.ary.dto.member.JoinRequest;
 import site.foolish.ary.domain.member.Member;
 import site.foolish.ary.service.member.MemberService;
+import site.foolish.ary.service.review.ReviewService;
 import site.foolish.ary.util.JWTUtil;
 import site.foolish.ary.response.StatusEnum;
 import site.foolish.ary.response.dto.Message;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -27,27 +30,38 @@ import java.nio.charset.StandardCharsets;
 public class MemberController {
 
     private final MemberService memberService;
+    private final ReviewService reviewService;
     private final JWTUtil jwtUtil;
 
-    @PostMapping("/join")
-    public ResponseEntity<Message> join(@RequestBody JoinRequest joinRequest,
-                                        BindingResult bindingResult, Model model) {
+    @GetMapping("/emailDuplicated")
+    public ResponseEntity<Message> emailDuplicated(@RequestBody EmailRequest request) {
+        Message message = new Message();
+        HttpHeaders headers = new HttpHeaders();
 
-        model.addAttribute("loginType", "security-login");
-        model.addAttribute("pageName", "ARY Member Login");
+        if(memberService.checkEmailDuplicated((request.getEmail()))) {
+            message.setStatus(StatusEnum.FAILED);
+            message.setSuccess(false);
+            message.setMessage("이메일이 존재합니다.");
+            message.setData(null);
+        } else {
+            message.setStatus(StatusEnum.OK);
+            message.setSuccess(true);
+            message.setMessage("사용 가능한 이메일입니다.");
+            message.setData(null);
+        }
+
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
+    }
+
+    @PostMapping("/join")
+    public ResponseEntity<Message> join(@RequestBody JoinRequest joinRequest) {
 
         Message message = new Message();
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
 
-        if(memberService.checkEmailDuplicated((joinRequest.getEmail()))) {
-            // ID 중복 여부 확인
-            message.setStatus(StatusEnum.OK);
-            message.setMessage("이메일이 존재합니다.");
-            message.setData(null);
-        } else if(!joinRequest.getPassword().equals(joinRequest.getPasswordCheck())) {
+        if(!joinRequest.getPassword().equals(joinRequest.getPasswordCheck())) {
             // 비밀번호 = 비밀번호 체크 여부 확인
-            message.setStatus(StatusEnum.OK);
+            message.setStatus(StatusEnum.FAILED);
             message.setMessage("비밀번호가 일치하지 않습니다");
             message.setData(null);
         } else {
@@ -70,9 +84,8 @@ public class MemberController {
         HttpHeaders headers = new HttpHeaders();
 
         if(member == null) {
-            message.setStatus(StatusEnum.OK);
+            message.setStatus(StatusEnum.FAILED);
             message.setMessage("ID 또는 비밀번호가 일치하지 않습니다");
-            message.setData(null);
         } else {
             message.setStatus(StatusEnum.OK);
             message.setMessage("로그인 성공");
@@ -88,17 +101,13 @@ public class MemberController {
         Message message = new Message();
         HttpHeaders headers = new HttpHeaders();
 
-
+        // TODO : Logout 구현
 
         return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }
 
     @GetMapping("/info")
-    public ResponseEntity<Message> memberInfo(Authentication auth, Model model) {
-
-        model.addAttribute("loginType", "security-login");
-        model.addAttribute("pageName", "ARY Member Login");
-
+    public ResponseEntity<Message> memberInfo(Authentication auth) {
         Member loginMember = memberService.getLoginMemberByEmail(auth.getName());
         Message message = new Message();
         HttpHeaders headers = new HttpHeaders();
@@ -106,18 +115,25 @@ public class MemberController {
         message.setStatus(StatusEnum.OK);
         message.setMessage(loginMember.getName() + " 회원 정보");
         message.setData(loginMember);
-
-        model.addAttribute("member", loginMember);
         return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }
 
-    @GetMapping("/admin")
-    public String adminPage(Model model) {
+    @GetMapping("/reviews")
+    public ResponseEntity<Message> memberReviewsInfo(Authentication auth) {
+        Message message = new Message();
+        HttpHeaders headers = new HttpHeaders();
 
-        model.addAttribute("loginType", "security-login");
-        model.addAttribute("pageName", "ARY Member Login");
+        Member loginMember = memberService.getLoginMemberByEmail(auth.getName());
+        loginMember.setPassword("hidden");
 
-        return "admin";
+        // 리뷰 내용들 빼고 리뷰 타이틀 등 핵심 내용만 가져오기
+        List<ReviewList> reviewList = reviewService.getMemberReviewsInfo(loginMember);
+
+        message.setStatus(StatusEnum.OK);
+        message.setMessage(loginMember.getName() + " 회원 리뷰 정보");
+        message.setData(reviewList);
+
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }
 
 }

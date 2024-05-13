@@ -7,6 +7,7 @@ import site.foolish.ary.response.StatusEnum;
 public class Message {
 
     private StatusEnum status;
+    private boolean isSuccess;
     private String message;
     private Object data;
 
