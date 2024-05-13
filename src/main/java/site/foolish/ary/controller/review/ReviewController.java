@@ -42,6 +42,7 @@ public class ReviewController {
         ReviewList reviewList = reviewService.crawling(crawlingRequest.getUrl(), member, crawlingRequest.getType());
 
         message.setStatus(StatusEnum.OK);
+        message.setSuccess(true);
         message.setMessage("Crawling Succeed");
         message.setData(reviewList);
 
@@ -56,6 +57,7 @@ public class ReviewController {
         ReviewList reviewList = reviewService.crawling(request.getId(), request.getTimes());
 
         message.setStatus(StatusEnum.OK);
+        message.setSuccess(true);
         message.setMessage("Crawled for" + request.getTimes() + " Succeed");
         message.setData(reviewList);
 
