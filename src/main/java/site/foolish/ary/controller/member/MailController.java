@@ -29,6 +29,7 @@ public class MailController {
         HttpHeaders headers = new HttpHeaders();
 
         message.setStatus(StatusEnum.OK);
+        message.setSuccess(true);
         message.setMessage("인증 코드 전송 완료");
         message.setData(code);
 

@@ -93,6 +93,7 @@ public class MemberController {
             message.setMessage("ID 또는 비밀번호가 일치하지 않습니다");
         } else {
             message.setStatus(StatusEnum.OK);
+            message.setSuccess(true);
             message.setMessage("로그인 성공");
             message.setSuccess(true);
             message.setData(jwtUtil.createJwt(member.getEmail(), member.getRole().name(), 60 * 60 * 1000L));
@@ -120,6 +121,7 @@ public class MemberController {
 
         message.setStatus(StatusEnum.OK);
         message.setMessage(loginMember.getName() + " 회원 정보");
+        message.setSuccess(true);
         message.setData(loginMember);
         return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }
@@ -136,6 +138,7 @@ public class MemberController {
         List<ReviewList> reviewList = reviewService.getMemberReviewsInfo(loginMember);
 
         message.setStatus(StatusEnum.OK);
+        message.setSuccess(true);
         message.setMessage(loginMember.getName() + " 회원 리뷰 정보");
         message.setData(reviewList);
 
