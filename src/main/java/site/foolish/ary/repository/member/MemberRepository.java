@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 import site.foolish.ary.domain.member.Member;
 
 @Repository
-public interface MemberRepository extends MongoRepository<Member, Long> {
+public interface MemberRepository extends MongoRepository<Member, String> {
 
     /**
      * 이메일을 갖는 객체가 존재하는지 확인하는 메소드
