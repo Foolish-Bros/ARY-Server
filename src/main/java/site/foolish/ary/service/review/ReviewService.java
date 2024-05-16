@@ -55,7 +55,6 @@ public class ReviewService {
 
         log.info(nowReviews.get().getMallName());
 
-        // TODO : Test
         switch (nowReviews.get().getMallName()) {
             case "coupang":
                 reviews = coupangCrawling(nowReviews.get(), times);
