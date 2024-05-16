@@ -38,6 +38,8 @@ public class MemberController {
         Message message = new Message();
         HttpHeaders headers = new HttpHeaders();
 
+        log.info(request.getEmail());
+
         if(memberService.checkEmailDuplicated((request.getEmail()))) {
             message.setStatus(StatusEnum.FAILED);
             message.setSuccess(false);
