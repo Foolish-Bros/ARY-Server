@@ -38,6 +38,8 @@ public class MemberController {
         Message message = new Message();
         HttpHeaders headers = new HttpHeaders();
 
+        log.info(request.getEmail());
+
         if(memberService.checkEmailDuplicated((request.getEmail()))) {
             message.setStatus(StatusEnum.FAILED);
             message.setSuccess(false);
@@ -72,7 +74,6 @@ public class MemberController {
             message.setStatus(StatusEnum.OK);
             message.setMessage("가입 성공");
             message.setSuccess(true);
-            joinRequest.setPasswordCheck(null);
             message.setData(joinRequest);
         }
 
@@ -94,6 +95,7 @@ public class MemberController {
             message.setStatus(StatusEnum.OK);
             message.setSuccess(true);
             message.setMessage("로그인 성공");
+            message.setSuccess(true);
             message.setData(jwtUtil.createJwt(member.getEmail(), member.getRole().name(), 60 * 60 * 1000L));
         }
 

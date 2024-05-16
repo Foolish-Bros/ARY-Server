@@ -2,7 +2,7 @@ package site.foolish.ary.domain.result;
 
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
-import site.foolish.ary.domain.review.Review;
+import site.foolish.ary.domain.member.Member;
 
 import java.util.Date;
 import java.util.List;
@@ -15,9 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 public class Result {
     private String id;
-    private List<String> questionList;
-    private List<String> answerList;
-    private List<Review> reviewList;
+    private Member member;
+    private List<Question> questionList;
+    private String reviewId;
     private Date createdAt;
     private Date updatedAt;
 }
