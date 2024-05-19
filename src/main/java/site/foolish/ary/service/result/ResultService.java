@@ -56,8 +56,8 @@ public class ResultService {
             questionList.add(question);
 
             Result updatedResult = result.get();
-
             updatedResult.setQuestionList(questionList);
+            updatedResult.setUpdatedAt(new Date());
 
             resultRepository.save(updatedResult);
 
