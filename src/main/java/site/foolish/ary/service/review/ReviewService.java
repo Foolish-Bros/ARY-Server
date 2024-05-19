@@ -430,6 +430,12 @@ public class ReviewService {
     }
 
     /* ---------------------------------------------------------------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------------------------------------------- */
 
     /**
      * 쿠팡 추가 크롤링
@@ -450,20 +456,6 @@ public class ReviewService {
 
         // 현재 저장되어 있는 review List 가져오기
         List<Review> reviews = reviewList.getReviews();
-
-        Document soupMain = Jsoup.connect(baseUrl)
-                .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
-                .header("authority", "weblog.coupang.com")
-                .header("scheme", "https")
-                .header("origin", "https://www.coupang.com")
-                .header("Sec-ch-ua-mobile", "?0")
-                .header("Sec-ch-ua-platform", "macOS")
-                .header("Cookie", "PCID=31489593180081104183684; _fbp=fb.1.1644931520418.1544640325; gd1=Y; X-CP-PT-locale=ko_KR; MARKETID=31489593180081104183684; sid=03ae1c0ed61946c19e760cf1a3d9317d808aca8b; overrideAbTestGroup=%5B%5D; x-coupang-origin-region=KOREA; x-coupang-accept-language=ko_KR;")
-                .header("referer", "https://www.coupang.com")
-                .get();
-
-        String title = soupMain.select("h2.prod-buy-header__title").text().trim();
-        float totalRate = Float.parseFloat(soupMain.select("span.rds-rating-score").text().trim());
 
         // Crawling 실행되는 part
 
@@ -565,13 +557,6 @@ public class ReviewService {
                 .get();
 
         String title = soupMain.select("h1.title").text().trim();
-        float totalRate = 0;
-        String totalRateString = soupMain.selectFirst("span.c_seller_grade") != null ?
-                soupMain.selectFirst("div.meta span.c_seller_grade").text().trim() : "0";
-        if(!totalRateString.isEmpty()) {
-            String num = totalRateString.replaceAll("\\D", "");
-            totalRate = Float.parseFloat(num.split("")[1]+ "." + num.split("")[2]);
-        }
 
         // Crawling 실행되는 부분
 
@@ -662,7 +647,7 @@ public class ReviewService {
             urls.add(tempUrl);
         }
 
-        List<Review> reviews = new ArrayList<>();
+        List<Review> reviews = reviewList.getReviews();
 
         Document soupMain = Jsoup.connect(baseUrl)
                 .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
