@@ -793,4 +793,8 @@ public class ReviewService {
 
         return reviewLists;
     }
+
+    public ReviewList getReviewById(String id) {
+        return reviewRepository.findById(id).orElse(null);
+    }
 }

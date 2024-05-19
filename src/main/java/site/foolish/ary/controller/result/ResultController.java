@@ -28,7 +28,6 @@ public class ResultController {
     private final ResultService resultService;
     private final MemberService memberService;
 
-    // TODO : test 해야됨
     @GetMapping("/load")
     public ResponseEntity<Message> load(@RequestBody LoadRequest request) {
         Message message = new Message();
@@ -50,6 +49,7 @@ public class ResultController {
         HttpHeaders headers = new HttpHeaders();
 
         Member member = memberService.getLoginMemberByEmail(auth.getName());
+        member.setPassword("hidden");
 
         Result result = resultService.createResult(member, request.getReviewId());
 
@@ -72,7 +72,7 @@ public class ResultController {
                 .createdAt(new Date())
                 .build();
 
-        Result result = resultService.updateResult(request.getReviewId(), question);
+        Result result = resultService.updateResult(request.getResultId(), question);
 
         message.setStatus(StatusEnum.OK);
         message.setMessage("추가 완료");
@@ -100,6 +100,19 @@ public class ResultController {
             message.setSuccess(false);
             message.setData(null);
         }
+
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/recent")
+    public ResponseEntity<Message> recent() {
+        Message message = new Message();
+        HttpHeaders headers = new HttpHeaders();
+
+        message.setStatus(StatusEnum.OK);
+        message.setMessage("조회 완료");
+        message.setSuccess(true);
+        message.setData(resultService.findRecentResults());
 
         return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }

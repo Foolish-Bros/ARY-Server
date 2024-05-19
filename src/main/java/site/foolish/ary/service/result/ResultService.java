@@ -2,11 +2,14 @@ package site.foolish.ary.service.result;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.foolish.ary.domain.member.Member;
 import site.foolish.ary.domain.result.Question;
 import site.foolish.ary.domain.result.Result;
+import site.foolish.ary.domain.review.Review;
+import site.foolish.ary.domain.review.ReviewList;
 import site.foolish.ary.repository.result.ResultRepository;
 
 import java.util.ArrayList;
@@ -68,6 +71,14 @@ public class ResultService {
         resultRepository.deleteById(resultId);
 
         return resultRepository.findById(resultId).isEmpty();
+    }
+
+    public List<Result> findResultsByMember(Member member) {
+        return resultRepository.findAllByMember(member);
+    }
+
+    public List<Result> findRecentResults() {
+        return resultRepository.findBy(PageRequest.of(0, 5));
     }
 
 }
