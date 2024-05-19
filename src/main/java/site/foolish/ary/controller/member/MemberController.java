@@ -8,12 +8,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import site.foolish.ary.domain.result.Result;
 import site.foolish.ary.domain.review.ReviewList;
 import site.foolish.ary.dto.member.EmailRequest;
 import site.foolish.ary.dto.member.LoginRequest;
 import site.foolish.ary.dto.member.JoinRequest;
 import site.foolish.ary.domain.member.Member;
 import site.foolish.ary.service.member.MemberService;
+import site.foolish.ary.service.result.ResultService;
 import site.foolish.ary.service.review.ReviewService;
 import site.foolish.ary.util.JWTUtil;
 import site.foolish.ary.response.StatusEnum;
@@ -32,6 +34,7 @@ public class MemberController {
     private final MemberService memberService;
     private final ReviewService reviewService;
     private final JWTUtil jwtUtil;
+    private final ResultService resultService;
 
     @GetMapping("/emailDuplicated")
     public ResponseEntity<Message> emailDuplicated(@RequestBody EmailRequest request) {
@@ -141,6 +144,24 @@ public class MemberController {
         message.setSuccess(true);
         message.setMessage(loginMember.getName() + " 회원 리뷰 정보");
         message.setData(reviewList);
+
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/results")
+    public ResponseEntity<Message> memberResultsInfo(Authentication auth) {
+        Message message = new Message();
+        HttpHeaders headers = new HttpHeaders();
+
+        Member loginMember = memberService.getLoginMemberByEmail(auth.getName());
+        loginMember.setPassword("hidden");
+
+        List<Result> results = resultService.findResultsByMember(loginMember);
+
+        message.setStatus(StatusEnum.OK);
+        message.setSuccess(true);
+        message.setMessage(loginMember.getName() + " 회원 조회기록");
+        message.setData(results);
 
         return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }

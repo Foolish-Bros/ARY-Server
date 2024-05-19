@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import site.foolish.ary.domain.member.Member;
 import site.foolish.ary.domain.result.Question;
 import site.foolish.ary.domain.result.Result;
+import site.foolish.ary.domain.review.ReviewList;
 import site.foolish.ary.repository.result.ResultRepository;
 
 import java.util.ArrayList;
@@ -68,6 +69,10 @@ public class ResultService {
         resultRepository.deleteById(resultId);
 
         return resultRepository.findById(resultId).isEmpty();
+    }
+
+    public List<Result> findResultsByMember(Member member) {
+        return resultRepository.findAllByMember(member);
     }
 
 }

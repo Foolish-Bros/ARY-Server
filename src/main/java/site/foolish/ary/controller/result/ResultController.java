@@ -28,7 +28,6 @@ public class ResultController {
     private final ResultService resultService;
     private final MemberService memberService;
 
-    // TODO : test 해야됨
     @GetMapping("/load")
     public ResponseEntity<Message> load(@RequestBody LoadRequest request) {
         Message message = new Message();
@@ -50,6 +49,7 @@ public class ResultController {
         HttpHeaders headers = new HttpHeaders();
 
         Member member = memberService.getLoginMemberByEmail(auth.getName());
+        member.setPassword("hidden");
 
         Result result = resultService.createResult(member, request.getReviewId());
 
@@ -72,7 +72,7 @@ public class ResultController {
                 .createdAt(new Date())
                 .build();
 
-        Result result = resultService.updateResult(request.getReviewId(), question);
+        Result result = resultService.updateResult(request.getResultId(), question);
 
         message.setStatus(StatusEnum.OK);
         message.setMessage("추가 완료");
