@@ -13,6 +13,7 @@ import site.foolish.ary.domain.review.ReviewList;
 import site.foolish.ary.dto.review.CrawlingMoreRequest;
 import site.foolish.ary.dto.review.CrawlingRequest;
 import site.foolish.ary.dto.review.ReviewDeleteRequest;
+import site.foolish.ary.dto.review.ReviewIdRequest;
 import site.foolish.ary.response.StatusEnum;
 import site.foolish.ary.response.dto.Message;
 import site.foolish.ary.service.member.MemberService;
@@ -80,6 +81,21 @@ public class ReviewController {
             message.setSuccess(false);
             message.setMessage("Delete Failed");
         }
+
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/load")
+    public ResponseEntity<Message> crawlingMore(@RequestBody ReviewIdRequest request) {
+        Message message = new Message();
+        HttpHeaders headers = new HttpHeaders();
+
+        ReviewList reviewList = reviewService.getReviewById(request.getId());
+
+        message.setStatus(StatusEnum.OK);
+        message.setSuccess(true);
+        message.setMessage("리뷰정보 조회 완료");
+        message.setData(reviewList);
 
         return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }

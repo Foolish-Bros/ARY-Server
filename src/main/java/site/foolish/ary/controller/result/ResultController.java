@@ -104,4 +104,17 @@ public class ResultController {
         return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }
 
+    @GetMapping("/recent")
+    public ResponseEntity<Message> recent() {
+        Message message = new Message();
+        HttpHeaders headers = new HttpHeaders();
+
+        message.setStatus(StatusEnum.OK);
+        message.setMessage("조회 완료");
+        message.setSuccess(true);
+        message.setData(resultService.findRecentResults());
+
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
+    }
+
 }
