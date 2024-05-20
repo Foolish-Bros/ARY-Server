@@ -37,25 +37,30 @@ public class MemberController {
     private final ResultService resultService;
 
     @GetMapping("/emailDuplicated")
-    public ResponseEntity<Message> emailDuplicated(@RequestBody EmailRequest request) {
-        Message message = new Message();
-        HttpHeaders headers = new HttpHeaders();
+    public ResponseEntity<Message> emailDuplicated(@RequestParam String email) throws Exception {
+        try {
+            log.info("called emailDuplicated");
+            Message message = new Message();
+            HttpHeaders headers = new HttpHeaders();
 
-        log.info(request.getEmail());
+            log.info(email);
 
-        if(memberService.checkEmailDuplicated((request.getEmail()))) {
-            message.setStatus(StatusEnum.FAILED);
-            message.setSuccess(false);
-            message.setMessage("이메일이 존재합니다.");
-            message.setData(null);
-        } else {
-            message.setStatus(StatusEnum.OK);
-            message.setSuccess(true);
-            message.setMessage("사용 가능한 이메일입니다.");
-            message.setData(null);
+            if (memberService.checkEmailDuplicated(email)) {
+                message.setStatus(StatusEnum.FAILED);
+                message.setSuccess(false);
+                message.setMessage("이메일이 존재합니다.");
+                message.setData(null);
+            } else {
+                message.setStatus(StatusEnum.OK);
+                message.setSuccess(true);
+                message.setMessage("사용 가능한 이메일입니다.");
+                message.setData(null);
+            }
+
+            return new ResponseEntity<>(message, headers, HttpStatus.OK);
+        }catch (Exception e){
+            throw new Exception(e);
         }
-
-        return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }
 
     @PostMapping("/join")
