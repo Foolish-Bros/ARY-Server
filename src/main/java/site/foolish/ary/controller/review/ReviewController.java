@@ -8,12 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import site.foolish.ary.domain.member.Member;
-import site.foolish.ary.domain.review.Review;
 import site.foolish.ary.domain.review.ReviewList;
 import site.foolish.ary.dto.review.CrawlingMoreRequest;
 import site.foolish.ary.dto.review.CrawlingRequest;
 import site.foolish.ary.dto.review.ReviewDeleteRequest;
-import site.foolish.ary.dto.review.ReviewIdRequest;
 import site.foolish.ary.response.StatusEnum;
 import site.foolish.ary.response.dto.Message;
 import site.foolish.ary.service.member.MemberService;
@@ -21,7 +19,6 @@ import site.foolish.ary.service.review.ReviewService;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -86,11 +83,11 @@ public class ReviewController {
     }
 
     @GetMapping("/load")
-    public ResponseEntity<Message> crawlingMore(@RequestBody ReviewIdRequest request) {
+    public ResponseEntity<Message> crawlingMore(@RequestParam String id) {
         Message message = new Message();
         HttpHeaders headers = new HttpHeaders();
 
-        ReviewList reviewList = reviewService.getReviewById(request.getId());
+        ReviewList reviewList = reviewService.getReviewById(id);
 
         message.setStatus(StatusEnum.OK);
         message.setSuccess(true);
