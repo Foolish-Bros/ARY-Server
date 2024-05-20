@@ -71,7 +71,7 @@ public class SecurityConfig {
                         .failureUrl("/member/login")
                         .permitAll());
 
-        // session 설정
+        // session 설정 : 사용하지 않을거임
         http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));

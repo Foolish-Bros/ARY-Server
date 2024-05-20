@@ -16,6 +16,8 @@ import site.foolish.ary.domain.member.oauth.kakao.KakaoUserDetails;
 import site.foolish.ary.domain.member.oauth.naver.NaverUserDetails;
 import site.foolish.ary.repository.member.MemberRepository;
 
+import java.util.Objects;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,7 +29,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
         OAuth2User oAuth2User = super.loadUser(userRequest);
-        log.info("getAttributes : ", oAuth2User.getAttributes());
+        log.info("getAttributes : " + oAuth2User.getAttributes());
 
         String provider = userRequest.getClientRegistration().getRegistrationId();
 
@@ -45,7 +47,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             oAuth2UserInfo = new NaverUserDetails(oAuth2User.getAttributes());
         }
 
-        String providerId = oAuth2UserInfo.getProviderId();
+        String providerId = Objects.requireNonNull(oAuth2UserInfo).getProviderId();
         String email = oAuth2UserInfo.getEmail();
         String name = oAuth2UserInfo.getName();
 
