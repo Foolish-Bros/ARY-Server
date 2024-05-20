@@ -4,13 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import site.foolish.ary.domain.result.Result;
 import site.foolish.ary.domain.review.ReviewList;
-import site.foolish.ary.dto.member.EmailRequest;
 import site.foolish.ary.dto.member.LoginRequest;
 import site.foolish.ary.dto.member.JoinRequest;
 import site.foolish.ary.domain.member.Member;
@@ -21,9 +19,7 @@ import site.foolish.ary.util.JWTUtil;
 import site.foolish.ary.response.StatusEnum;
 import site.foolish.ary.response.dto.Message;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -88,7 +84,7 @@ public class MemberController {
         return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<Message> login(@RequestBody LoginRequest loginRequest) {
 
         Member member = memberService.login(loginRequest);
