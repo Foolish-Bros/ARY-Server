@@ -99,7 +99,6 @@ public class MemberController {
             message.setStatus(StatusEnum.OK);
             message.setSuccess(true);
             message.setMessage("로그인 성공");
-            message.setSuccess(true);
             message.setData(jwtUtil.createJwt(member.getEmail(), member.getRole().name(), 60 * 60 * 1000L));
         }
 

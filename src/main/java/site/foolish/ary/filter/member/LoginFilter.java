@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,6 +17,7 @@ import site.foolish.ary.util.JWTUtil;
 import java.util.Collection;
 import java.util.Iterator;
 
+@Slf4j
 @RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -41,6 +43,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         CustomSecurityUserDetails customSecurityUserDetails = (CustomSecurityUserDetails) authentication.getPrincipal();
         String username = customSecurityUserDetails.getUsername();
 
+        log.info(customSecurityUserDetails.getUsername());
+
         // role 추출
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -54,7 +58,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // key : "Authorization
         // value : "Bearer " + token
         response.addHeader("Authorization", "Bearer " + token);
-
     }
 
     // 로그인 실패 시
