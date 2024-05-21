@@ -19,6 +19,8 @@ import org.springframework.web.filter.CorsFilter;
 import site.foolish.ary.domain.member.Role;
 import site.foolish.ary.filter.member.JWTFilter;
 import site.foolish.ary.filter.member.LoginFilter;
+import site.foolish.ary.handler.OAuth2SuccessHandler;
+import site.foolish.ary.service.member.oauth.CustomOauth2UserService;
 import site.foolish.ary.util.JWTUtil;
 
 import java.util.Arrays;
@@ -31,6 +33,7 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration configuration;
     private final JWTUtil jwtUtil;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -39,7 +42,7 @@ public class SecurityConfig {
 
     // Security Filter 메소드
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomOauth2UserService customOauth2UserService) throws Exception {
 
         // TODO 개발단계 끝나고 csrf 다시 활성화
         http
@@ -66,9 +69,11 @@ public class SecurityConfig {
 
         // OAuth 2.0 로그인 방식 설정
         http
-                .oauth2Login((auth) -> auth.loginPage("/member/login")
-                        .defaultSuccessUrl("/member")
-                        .failureUrl("/member/login")
+                .oauth2Login((auth) -> auth
+                        .userInfoEndpoint(userInfoEndpoint ->
+                                userInfoEndpoint.userService(customOauth2UserService)
+                        )
+                        .successHandler(oAuth2SuccessHandler)
                         .permitAll());
 
         // session 설정
