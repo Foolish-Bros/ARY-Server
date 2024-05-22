@@ -15,6 +15,8 @@ public class Member {
 //    @Id
 //    private String username;
 
+    private String id;
+
     private String email;
     private String password;
     private String name;

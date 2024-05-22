@@ -1,5 +1,6 @@
 package site.foolish.ary.service.member;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,18 +26,29 @@ public class MemberService {
         return memberRepository.existsByEmail(email);
     }
 
-    public void join(JoinRequest joinRequest) {
-        memberRepository.save(joinRequest.toEntity());
-    }
-
     public Member login(LoginRequest loginRequest) {
         Member findMember = memberRepository.findByEmail(loginRequest.getEmail());
 
         if(findMember == null) return null;
         if(!bCryptPasswordEncoder.matches(loginRequest.getPassword(), findMember.getPassword())) return null;
-//        if(!findMember.getPassword().equals(loginRequest.getPassword())) return null;
 
         return findMember;
+    }
+
+    public boolean checkPassword(Member member, String password) {
+        return bCryptPasswordEncoder.matches(password, member.getPassword());
+    }
+
+    public boolean changePassword(Member member, String oldPassword, String newPassword) {
+        if(checkPassword(member, oldPassword)) {
+            Member findMember = memberRepository.findById(member.getId()).orElseThrow(() -> new EntityNotFoundException(member.getId()));
+            findMember.setPassword(bCryptPasswordEncoder.encode(newPassword));
+
+            memberRepository.save(findMember);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public Member getLoginMemberByEmail(String email) {
