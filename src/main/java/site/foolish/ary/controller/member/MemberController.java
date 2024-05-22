@@ -211,7 +211,6 @@ public class MemberController {
             message.setMessage("회원 탈퇴 실패, 잠시 후 다시 시도해주세요.");
         }
 
-
         return new ResponseEntity<>(message, headers, HttpStatus.OK);
 
     }

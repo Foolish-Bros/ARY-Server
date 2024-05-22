@@ -11,6 +11,7 @@ import site.foolish.ary.domain.result.Result;
 import site.foolish.ary.domain.review.Review;
 import site.foolish.ary.domain.review.ReviewList;
 import site.foolish.ary.repository.result.ResultRepository;
+import site.foolish.ary.repository.review.ReviewRepository;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,6 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ResultService {
     private final ResultRepository resultRepository;
+    private final ReviewRepository reviewRepository;
 
     public Result loadResult(String resultId) {
 
@@ -37,6 +39,7 @@ public class ResultService {
         Result result = Result.builder()
                 .member(member)
                 .reviewId(reviewId)
+                .title(reviewRepository.findById(reviewId).get().getTitle())
                 .questionList(questionList)
                 .createdAt(new Date())
                 .updatedAt(new Date())
