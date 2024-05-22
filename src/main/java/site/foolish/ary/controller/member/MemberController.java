@@ -192,4 +192,28 @@ public class MemberController {
         return new ResponseEntity<>(message, headers, HttpStatus.OK);
     }
 
+    @DeleteMapping("/withdrawal")
+    public ResponseEntity<Message> withdrawal(Authentication auth) {
+        Message message = new Message();
+        HttpHeaders headers = new HttpHeaders();
+
+        Member loginMember = memberService.getLoginMemberByEmail(auth.getName());
+
+        boolean isSuccess = memberService.withdrawMember(loginMember);
+
+        if(isSuccess) {
+            message.setStatus(StatusEnum.OK);
+            message.setSuccess(true);
+            message.setMessage("회원 탈퇴하였습니다. 그동안 이용해주셔서 감사합니다.");
+        } else {
+            message.setStatus(StatusEnum.FAILED);
+            message.setSuccess(false);
+            message.setMessage("회원 탈퇴 실패, 잠시 후 다시 시도해주세요.");
+        }
+
+
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
+
+    }
+
 }
