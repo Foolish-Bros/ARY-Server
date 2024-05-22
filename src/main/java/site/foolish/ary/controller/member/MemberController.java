@@ -12,6 +12,7 @@ import site.foolish.ary.domain.review.ReviewList;
 import site.foolish.ary.dto.member.LoginRequest;
 import site.foolish.ary.dto.member.JoinRequest;
 import site.foolish.ary.domain.member.Member;
+import site.foolish.ary.dto.member.PasswordRequest;
 import site.foolish.ary.service.member.MemberService;
 import site.foolish.ary.service.result.ResultService;
 import site.foolish.ary.service.review.ReviewService;
@@ -164,6 +165,55 @@ public class MemberController {
         message.setData(results);
 
         return new ResponseEntity<>(message, headers, HttpStatus.OK);
+    }
+
+    @PostMapping("/changePassword")
+    public ResponseEntity<Message> changeMemberPassword(Authentication auth, @RequestBody PasswordRequest request) {
+        Message message = new Message();
+        HttpHeaders headers = new HttpHeaders();
+
+        log.info(request.getOldPassword());
+        log.info(request.getNewPassword());
+
+        Member loginMember = memberService.getLoginMemberByEmail(auth.getName());
+
+        boolean isSuccess = memberService.changePassword(loginMember, request.getOldPassword(), request.getNewPassword());
+
+        if(isSuccess) {
+            message.setStatus(StatusEnum.OK);
+            message.setSuccess(true);
+            message.setMessage(loginMember.getName() + " 회원 비밀번호 변경");
+        } else {
+            message.setStatus(StatusEnum.FAILED);
+            message.setSuccess(false);
+            message.setMessage("비밀번호가 틀렸습니다!");
+        }
+
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/withdrawal")
+    public ResponseEntity<Message> withdrawal(Authentication auth) {
+        Message message = new Message();
+        HttpHeaders headers = new HttpHeaders();
+
+        Member loginMember = memberService.getLoginMemberByEmail(auth.getName());
+
+        boolean isSuccess = memberService.withdrawMember(loginMember);
+
+        if(isSuccess) {
+            message.setStatus(StatusEnum.OK);
+            message.setSuccess(true);
+            message.setMessage("회원 탈퇴하였습니다. 그동안 이용해주셔서 감사합니다.");
+        } else {
+            message.setStatus(StatusEnum.FAILED);
+            message.setSuccess(false);
+            message.setMessage("회원 탈퇴 실패, 잠시 후 다시 시도해주세요.");
+        }
+
+
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
+
     }
 
 }
