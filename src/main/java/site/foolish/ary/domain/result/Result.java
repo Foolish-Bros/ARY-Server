@@ -16,6 +16,7 @@ import java.util.List;
 public class Result {
     private String id;
     private Member member;
+    private String title;
     private List<Question> questionList;
     private String reviewId;
     private Date createdAt;
