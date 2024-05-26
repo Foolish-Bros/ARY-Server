@@ -50,6 +50,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         cookie.setMaxAge(3600); // 쿠키의 유효 기간 설정 (초 단위, 여기서는 1시간)
 
         response.addCookie(cookie);
-        response.sendRedirect("http://localhost:3000");
+        response.sendRedirect("https://www.all-review-young.site");
     }
 }
