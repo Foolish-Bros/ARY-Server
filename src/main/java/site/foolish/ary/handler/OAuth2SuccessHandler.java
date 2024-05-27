@@ -44,7 +44,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         // 쿠키 생성
         Cookie cookie = new Cookie("token", token);
-        cookie.setDomain("localhost");
+        cookie.setDomain("www.all-review-young.site");
         cookie.setSecure(false); // HTTP에서도 쿠키를 전송하도록 설정 (개발/테스트 환경에서만 사용)
         cookie.setPath("/"); // 쿠키의 유효 경로 설정
         cookie.setMaxAge(3600); // 쿠키의 유효 기간 설정 (초 단위, 여기서는 1시간)
