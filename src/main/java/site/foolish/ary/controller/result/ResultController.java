@@ -29,11 +29,11 @@ public class ResultController {
     private final MemberService memberService;
 
     @GetMapping("/load")
-    public ResponseEntity<Message> load(@RequestBody LoadRequest request) {
+    public ResponseEntity<Message> load(@RequestParam String id) {
         Message message = new Message();
         HttpHeaders headers = new HttpHeaders();
 
-        Result result = resultService.loadResult(request.getResultId());
+        Result result = resultService.loadResult(id);
 
         message.setStatus(StatusEnum.OK);
         message.setMessage("결과조회 완료");
