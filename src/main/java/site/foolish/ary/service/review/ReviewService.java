@@ -142,7 +142,7 @@ public class ReviewService {
 
                 // 리뷰 내용
                 String reviewContent = article.selectFirst("div.sdp-review__article__list__review > div") != null ?
-                        Objects.requireNonNull(article.selectFirst("div.sdp-review__article__list__review > div")).text().trim() : "등록된 리뷰내용이 없습니다";
+                        Objects.requireNonNull(article.selectFirst("div.sdp-review__article__list__review > div")).text().trim() : "등록된 리뷰내용이 없습니다.";
 
                 // Date
                 String dateString  = article.selectFirst("div.sdp-review__article__list__info__product-info__reg-date") != null ?

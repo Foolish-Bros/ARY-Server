@@ -71,7 +71,12 @@ public class ResultService {
     }
 
     public boolean deleteResult(String resultId) {
+        Optional<Result> result = resultRepository.findById(resultId);
+
+        String reviewId = result.get().getReviewId();
+
         resultRepository.deleteById(resultId);
+        reviewRepository.deleteById(reviewId);
 
         return resultRepository.findById(resultId).isEmpty();
     }
