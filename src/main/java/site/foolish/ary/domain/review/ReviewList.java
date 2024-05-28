@@ -16,6 +16,7 @@ import java.util.List;
 public class ReviewList {
     private String id;
     private String url;
+    private String thumbnail;
     private String mallName;
     private String title;
     private float totalRate;

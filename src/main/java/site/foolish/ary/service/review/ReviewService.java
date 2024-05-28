@@ -100,6 +100,9 @@ public class ReviewService {
                 .header("referer", "https://www.coupang.com")
                 .get();
 
+        String thumbnail = soupMain.selectFirst(".prod-image__detail").attr("src");
+        log.info(thumbnail);
+
         String title = soupMain.select("h2.prod-buy-header__title").text().trim();
         float totalRate = Float.parseFloat(soupMain.select("span.rds-rating-score").text().trim());
 
@@ -168,6 +171,7 @@ public class ReviewService {
         ReviewList reviewList = ReviewList.builder()
                 .member(member)
                 .title(title)
+                .thumbnail("https:" + thumbnail)
                 .mallName("coupang")
                 .totalRate(totalRate)
                 .reviews(reviews)
@@ -185,6 +189,7 @@ public class ReviewService {
      */
     public ReviewList elevenCrawling(String baseUrl, Member member) throws IOException, InterruptedException, ParseException {
         // 입력 받은 URL 주소의 product code 를 추출
+
         String prodCode;
         if(baseUrl.contains("?")) {
             String[] parts = baseUrl.substring(baseUrl.lastIndexOf("/products/") + 1, baseUrl.indexOf("?")).split("/");
@@ -213,6 +218,9 @@ public class ReviewService {
                 .header("Cookie", "_gcl_au=1.1.2002688257.1714358136; _fbp=fb.2.1714358135779.1926387357; _ga=GA1.1.1080026663.1714358136; _ga_6VBF5N51X2=GS1.1.1714358136.1.0.1714358136.60.0.0; PCID=17143581363649815761088; XSRF-TOKEN=47a7d600-1d00-5de8-74ba-353cdca4394e; TP=scrnChk%7CY; AUID=AUID_kE9oh3ri4QqEpPXWmCHmtQ; TT=CONN_IP_LOC%7CDOM; RCPD=2604446520; PCID_FRV=true; DMP_UID=(DMPC)447c4767-0f46-4f33-8de6-60851c7823e5; JSESSIONID=E72AD1958407FDF23BD442A0F17497D4.Tomcat")
                 .header("referer", "https://www.11st.co.kr/")
                 .get();
+
+        String thumbnail = soupMain.select("div.img_full img").attr("src");
+        log.info(thumbnail);
 
         String title = soupMain.select("h1.title").text().trim();
         float totalRate = 0;
@@ -245,7 +253,7 @@ public class ReviewService {
                 // product Name
                 String prodName = title;
                 prodName+= article.selectFirst("div.cfix div.bbs_cont p.option_txt")  != null ?
-                        article.selectFirst("div.cfix div.bbs_cont p.option_txt").text().trim() : "제품명이 없습니다.";
+                        article.selectFirst("div.cfix div.bbs_cont p.option_txt").text().trim() : "";
 
                 // headline
                 // 11번가 review에는 headline이 존재 x
@@ -290,6 +298,7 @@ public class ReviewService {
         ReviewList reviewList = ReviewList.builder()
                 .member(member)
                 .title(title)
+                .thumbnail(thumbnail)
                 .mallName("11st")
                 .totalRate(totalRate)
                 .reviews(reviews)
@@ -330,6 +339,10 @@ public class ReviewService {
                 .header("Cookie", "_gcl_au=1.1.2002688257.1714358136; _fbp=fb.2.1714358135779.1926387357; _ga=GA1.1.1080026663.1714358136; _ga_6VBF5N51X2=GS1.1.1714358136.1.0.1714358136.60.0.0; PCID=17143581363649815761088; XSRF-TOKEN=47a7d600-1d00-5de8-74ba-353cdca4394e; TP=scrnChk%7CY; AUID=AUID_kE9oh3ri4QqEpPXWmCHmtQ; TT=CONN_IP_LOC%7CDOM; RCPD=2604446520; PCID_FRV=true; DMP_UID=(DMPC)447c4767-0f46-4f33-8de6-60851c7823e5; JSESSIONID=E72AD1958407FDF23BD442A0F17497D4.Tomcat")
                 .header("referer", "http://www.auction.co.kr/")
                 .get();
+
+        String thumbnail = soupMain.select("ul.viewer li a img").attr("src");
+
+        log.info(thumbnail);
 
         String title = soupMain.select("h1.itemtit").text().trim();
 
@@ -423,6 +436,7 @@ public class ReviewService {
         ReviewList reviewList = ReviewList.builder()
                 .member(member)
                 .title(title)
+                .thumbnail("https:" + thumbnail)
                 .mallName("auction")
                 .totalRate(totalRate)
                 .reviews(reviews)
@@ -435,6 +449,12 @@ public class ReviewService {
         return reviewList;
     }
 
+    /* ---------------------------------------------------------------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------------------------------------------------------------------- */
     /* ---------------------------------------------------------------------------------------------------------------------------------- */
 
     /**
@@ -456,20 +476,6 @@ public class ReviewService {
 
         // 현재 저장되어 있는 review List 가져오기
         List<Review> reviews = reviewList.getReviews();
-
-        Document soupMain = Jsoup.connect(baseUrl)
-                .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
-                .header("authority", "weblog.coupang.com")
-                .header("scheme", "https")
-                .header("origin", "https://www.coupang.com")
-                .header("Sec-ch-ua-mobile", "?0")
-                .header("Sec-ch-ua-platform", "macOS")
-                .header("Cookie", "PCID=31489593180081104183684; _fbp=fb.1.1644931520418.1544640325; gd1=Y; X-CP-PT-locale=ko_KR; MARKETID=31489593180081104183684; sid=03ae1c0ed61946c19e760cf1a3d9317d808aca8b; overrideAbTestGroup=%5B%5D; x-coupang-origin-region=KOREA; x-coupang-accept-language=ko_KR;")
-                .header("referer", "https://www.coupang.com")
-                .get();
-
-        String title = soupMain.select("h2.prod-buy-header__title").text().trim();
-        float totalRate = Float.parseFloat(soupMain.select("span.rds-rating-score").text().trim());
 
         // Crawling 실행되는 part
 
@@ -581,13 +587,6 @@ public class ReviewService {
                 .get();
 
         String title = soupMain.select("h1.title").text().trim();
-        float totalRate = 0;
-        String totalRateString = soupMain.selectFirst("span.c_seller_grade") != null ?
-                soupMain.selectFirst("div.meta span.c_seller_grade").text().trim() : "0";
-        if(!totalRateString.isEmpty()) {
-            String num = totalRateString.replaceAll("\\D", "");
-            totalRate = Float.parseFloat(num.split("")[1]+ "." + num.split("")[2]);
-        }
 
         // Crawling 실행되는 부분
 
@@ -611,7 +610,7 @@ public class ReviewService {
                 // product Name
                 String prodName = title;
                 prodName+= article.selectFirst("div.cfix div.bbs_cont p.option_txt")  != null ?
-                        article.selectFirst("div.cfix div.bbs_cont p.option_txt").text().trim() : "제품명이 없습니다.";
+                        article.selectFirst("div.cfix div.bbs_cont p.option_txt").text().trim() : "";
 
                 // headline
                 // 11번가 review에는 headline이 존재 x
@@ -678,7 +677,7 @@ public class ReviewService {
             urls.add(tempUrl);
         }
 
-        List<Review> reviews = new ArrayList<>();
+        List<Review> reviews = reviewList.getReviews();
 
         Document soupMain = Jsoup.connect(baseUrl)
                 .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
