@@ -474,8 +474,16 @@ public class ReviewService {
             urls.add(tempUrl);
         }
 
-        // 현재 저장되어 있는 review List 가져오기
-        List<Review> reviews = reviewList.getReviews();
+        List<Review> reviews;
+
+        if(times == 1) {
+            // 새로고침
+            reviews = new ArrayList<>();
+        } else {
+            // 현재 저장되어 있는 review List 가져오기
+            reviews = reviewList.getReviews();
+        }
+
 
         // Crawling 실행되는 part
 
@@ -573,7 +581,15 @@ public class ReviewService {
             urls.add(tempUrl);
         }
 
-        List<Review> reviews = new ArrayList<>();
+        List<Review> reviews;
+
+        if(times == 1) {
+            // 새로고침
+            reviews = new ArrayList<>();
+        } else {
+            // 현재 저장되어 있는 review List 가져오기
+            reviews = reviewList.getReviews();
+        }
 
         Document soupMain = Jsoup.connect(baseUrl)
                 .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
@@ -677,7 +693,15 @@ public class ReviewService {
             urls.add(tempUrl);
         }
 
-        List<Review> reviews = reviewList.getReviews();
+        List<Review> reviews;
+
+        if(times == 1) {
+            // 새로고침
+            reviews = new ArrayList<>();
+        } else {
+            // 현재 저장되어 있는 review List 가져오기
+            reviews = reviewList.getReviews();
+        }
 
         Document soupMain = Jsoup.connect(baseUrl)
                 .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
