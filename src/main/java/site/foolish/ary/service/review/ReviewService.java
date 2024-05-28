@@ -185,8 +185,14 @@ public class ReviewService {
      */
     public ReviewList elevenCrawling(String baseUrl, Member member) throws IOException, InterruptedException, ParseException {
         // 입력 받은 URL 주소의 product code 를 추출
-        String[] parts = baseUrl.substring(baseUrl.lastIndexOf("/products/") + 1, baseUrl.indexOf("?")).split("/");
-        String prodCode = parts[parts.length - 1];
+        String prodCode;
+        if(baseUrl.contains("?")) {
+            String[] parts = baseUrl.substring(baseUrl.lastIndexOf("/products/") + 1, baseUrl.indexOf("?")).split("/");
+            prodCode = parts[parts.length - 1];
+        } else {
+            String[] parts = baseUrl.substring(baseUrl.lastIndexOf("/products/") + 1).split("/");
+            prodCode = parts[parts.length - 1];
+        }
 
         List<String> urls = new ArrayList<>();
 
@@ -540,9 +546,19 @@ public class ReviewService {
     public ReviewList elevenCrawling(ReviewList reviewList, int times) throws IOException, InterruptedException, ParseException {
         String baseUrl = reviewList.getUrl();
 
+        String prodCode;
+
         // 입력 받은 URL 주소의 product code 를 추출
-        String[] parts = baseUrl.substring(baseUrl.lastIndexOf("/products/") + 1, baseUrl.indexOf("?")).split("/");
-        String prodCode = parts[parts.length - 1];
+        if(baseUrl.contains("?")) {
+            String[] parts = baseUrl.substring(baseUrl.lastIndexOf("/products/") + 1, baseUrl.indexOf("?")).split("/");
+            prodCode = parts[parts.length - 1];
+        } else {
+            String[] parts = baseUrl.substring(baseUrl.lastIndexOf("/products/") + 1).split("/");
+            prodCode = parts[parts.length - 1];
+        }
+
+
+        log.info(prodCode);
 
         List<String> urls = new ArrayList<>();
 
