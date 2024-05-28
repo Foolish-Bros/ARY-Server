@@ -797,7 +797,7 @@ public class ReviewService {
     }
 
     /**
-     * 멤버의 모든 리뷰 가져오기
+     * 멤버의 모든 리뷰 로딩
      */
     public List<ReviewList> getMemberReviewsInfo(Member member) {
         List<ReviewList> reviewLists = reviewRepository.findAllByMember(member);
