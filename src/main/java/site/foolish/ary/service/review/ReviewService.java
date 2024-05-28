@@ -469,7 +469,7 @@ public class ReviewService {
 
         List<String> urls = new ArrayList<>();
 
-        for (int page = times; page <= times*20; page++) {
+        for (int page = (times-1)*20; page <= times*20; page++) {
             String tempUrl = "https://www.coupang.com/vp/product/reviews?productId=" + prodCode + "&page=" + page + "&size=5&sortBy=ORDER_SCORE_ASC&ratings=&q=&viRoleCode=3&ratingSummary=true";
             urls.add(tempUrl);
         }
@@ -568,7 +568,7 @@ public class ReviewService {
 
         List<String> urls = new ArrayList<>();
 
-        for (int page = times; page <= times*20; page++) {
+        for (int page = (times-1)*20; page <= times*20; page++) {
             String tempUrl = "https://www.11st.co.kr/product/SellerProductDetail.tmall?method=getProductReviewList&prdNo=" + prodCode + "&page=" + page + "&pageTypCd=first&reviewDispYn=Y";
             urls.add(tempUrl);
         }
@@ -672,7 +672,7 @@ public class ReviewService {
 
         List<String> urls = new ArrayList<>();
 
-        for (int page = times; page <= times*20; page++) {
+        for (int page = (times-1)*20; page <= times*20; page++) {
             String tempUrl = "https://amtour.auction.co.kr/Item/GetReviewList?itemNo=" + prodCode + "&filter=&sort=popular&pageIndex=" + page + "&tourType=";
             urls.add(tempUrl);
         }
