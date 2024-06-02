@@ -82,7 +82,7 @@ public class ReviewService {
 
         List<String> urls = new ArrayList<>();
 
-        for (int page = 1; page <= 20; page++) {
+        for (int page = 1; page <= 10; page++) {
             String tempUrl = "https://www.coupang.com/vp/product/reviews?productId=" + prodCode + "&page=" + page + "&size=5&sortBy=ORDER_SCORE_ASC&ratings=&q=&viRoleCode=3&ratingSummary=true";
             urls.add(tempUrl);
         }
@@ -469,7 +469,7 @@ public class ReviewService {
 
         List<String> urls = new ArrayList<>();
 
-        for (int page = (times-1)*20; page <= times*20; page++) {
+        for (int page = (times-1)*10; page <= times*10; page++) {
             String tempUrl = "https://www.coupang.com/vp/product/reviews?productId=" + prodCode + "&page=" + page + "&size=5&sortBy=ORDER_SCORE_ASC&ratings=&q=&viRoleCode=3&ratingSummary=true";
             urls.add(tempUrl);
         }
