@@ -53,6 +53,8 @@ public class ResultService {
     public Result updateResult(String resultId, Question question) {
 
         Optional<Result> result = resultRepository.findById(resultId);
+        
+        log.info(String.valueOf(result.get().getQuestionList()));
 
         if(result.isPresent()) {
             List<Question> questionList = result.get().getQuestionList();
